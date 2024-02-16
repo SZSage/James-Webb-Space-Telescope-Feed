@@ -1,0 +1,10 @@
+.head {
+  border-color: black;
+  border-width: 20px;
+  border-bottom: 10;
+  color: black;
+}
+
+.body {
+  background-color: aqua;
+}
