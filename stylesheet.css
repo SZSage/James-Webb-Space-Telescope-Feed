@@ -8,12 +8,99 @@ body {
   background-color: #262323;
 }
 
+.dailyPhoto {
+  display: flex;
+  justify-content: center;
+}
+
 .name {
   background-color: #262323;
   color: #D2D2D2;
   padding: 15px;
   margin-left: 15px;
+  font-family: "Newsreader";
+  font-size: 22;
+  font-weight: 20;
 }
+
+.date {
+  color: #D2D2D2;
+  padding: 25px;
+  margin-left: 15px;
+  font-family: "Newsreader";
+  font-size: 80;
+  font-weight: 40;
+}
+
+
+.info {
+  color:#D2D2D2;
+  padding: 15px;
+  font-family: "Newsreader";
+  font-size: 20;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* forming grid to diplay a few images on homescreen */
+
+.outer-grid {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0 4px;
+}
+
+.inner-grid {
+  flex: 25%;
+  max-width: 25%;
+  padding: 0 4px;
+}
+
+.inner-grid img {
+  margin-top: 8px;
+  width: 100%;
+  padding: 10px;
+}
+
+@media screen and (max-width: 400px) {
+  .inner-grid {
+    flex: 50%;
+    max-width: 50%;
+  }
+}
+
+
+@media screen and (max-width: 400px) {
+  .inner-grid {
+    flex: 100%;
+    max-width: 100%;
+  }
+}
+
+
+/*rotating animation */
+
+
+.box{animation: rotate 3s infinite; }
+
+@keyframes rotate {
+  0% {transform: rotate(0deg);}
+  100% {transform: rotate(360deg);}
+}
+
+
+
+/* Menu css animation*/
 
 .btn {
   background-color: #626461;
