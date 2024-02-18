@@ -3,7 +3,6 @@
   align-items: center;
   justify-content: space-between;
 }
-
 body {
   background-color: #262323;
 }
@@ -13,19 +12,45 @@ body {
   justify-content: center;
 }
 
+.title-animation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+
 .name {
   background-color: #262323;
   color: #D2D2D2;
-  padding: 15px;
+  padding: 10px;
   margin-left: 15px;
   font-family: "Newsreader";
-  font-size: 22;
+  font-size: 50px;
   font-weight: 20;
+}
+
+
+.master-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-inline-start: 30%;
+}
+
+
+.img-descr {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #D2D2D2;
+  font-size: xx-large;
+  font-family: "Newsreader";
+
 }
 
 .date {
   color: #D2D2D2;
-  padding: 25px;
+  padding: 15px;
   margin-left: 15px;
   font-family: "Newsreader";
   font-size: 80;
@@ -35,13 +60,23 @@ body {
 
 .info {
   color:#D2D2D2;
-  padding: 15px;
+  background-color: #262323;
+  padding: 10px;
   font-family: "Newsreader";
   font-size: 20;
+  line-height: 30px;
+  margin: 40px;
+
 }
 
-
-
+.other {
+  color: #D2D2D2;
+  font-size: x-large;
+  padding: 15px;
+  font-family: "Newsreader";
+  margin: 40px;
+  text-decoration:double;
+}
 
 
 
@@ -53,6 +88,11 @@ body {
 
 
 /* forming grid to diplay a few images on homescreen */
+.other-pics {
+  display: flex;
+  align-items:flex-start;
+  justify-content: center;
+}
 
 .outer-grid {
   display: flex;
@@ -69,6 +109,7 @@ body {
 .inner-grid img {
   margin-top: 8px;
   width: 100%;
+  height: 70%;
   padding: 10px;
 }
 
@@ -103,10 +144,11 @@ body {
 /* Menu css animation*/
 
 .btn {
-  background-color: #626461;
-  border-radius: 10px;
-  padding: 12px 26px;
+  background-color: #262323;
+  color: #D2D2D2;
+  padding: 12px;
   border: none;
+  border-radius: 15px;
   font-size: 18px;
   font-weight: 100;
   cursor: pointer;
@@ -118,29 +160,29 @@ body {
   display: inline-block;
 }
 
-.menu-opt {
-  display: none;
-  position: absolute;
-  background-color: #C5C9C3;
-  min-width: none;
-  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-}
 
-.menu-opt a {
-  color: black;
-  padding: 12px 16px;
-  text-decoration: none;
-  display: block;
+.option-bar1:hover .btn {
+  background-color: #413F3F;
 }
-
-.menu-opt a:hover {
-  background-color: #9B9E99;
+.option-bar2:hover .btn {
+  background-color: #413F3F;
 }
-
-.menu:hover .menu-opt {
-  display: block;
-}
-
 .menu:hover .btn {
-  background-color: #9B9E99;
+  background-color: #413F3F;
+}
+
+.sec-calendar-btn {
+  background-color: #262323;
+  color: #D2D2D2;
+  padding: 12px;
+  border: none;
+  border-radius: 15px;
+  font-size: 18px;
+  font-weight: 100;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.sec-calendar-btn:hover .btn {
+  background-color: #413F3F;
 }

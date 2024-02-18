@@ -5,17 +5,21 @@
         <link rel="stylesheet" href= "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
         <link rel="stylesheet" href='https://fonts.googleapis.com/css?family=Newsreader'>
         <div class="header">
-            <h1 class="name">NebulaNet</h1>
-            <div class="box">
-                <img src="atom-empty.png" alt="atom">
+            <div class="title-animation">
+                <h1 class="name">NebulaNet</h1>
+                <div class="box">
+                    <img src="atom-empty.png" alt="atom">
+                </div>
             </div>
-            <div class="menu">
-                <button class="btn">Menu
-                </button>
-                <div class="menu-opt">
-                    <a href="#">Link 1</a>
-                    <a href="#">Link 24</a>
-                    <a href="#">Link 3</a>
+            <div class="master-option">
+                <div class="option-bar1">
+                    <button class="btn">About</button>
+                </div>
+                <div class="option-bar2">
+                    <button class="btn">Sources</button>
+                </div>
+                <div class="menu">
+                    <button class="btn">Calendar</button>
                 </div>
             </div>
         </div>
@@ -24,7 +28,10 @@
         <div class="dailyPhoto">
             <img src="carinanebula3.jpg" alt="nebula">
         </div>
-        <p class="date" id="datetime"></p>
+        <div class="img-descr">
+            <p>Carina Nebula</p>
+            <p class="date" id="datetime"></p>
+        </div>
 
 <script>
   // Get current date and time
@@ -36,21 +43,41 @@
 </script>
 
         <div class="info">
-            <p> This image was created with Webb data from proposal 2731. It is part of Webb Early Release Observations. The Early Release Observations and associated materials were developed, executed, and compiled by the ERO production team: Jaclyn Barrientes, Claire Blome, Hannah Braun, Matthew Brown, Margaret Carruthers, Dan Coe, Joseph DePasquale, Nestor Espinoza, Macarena Garcia Marin, Karl Gordon, Alaina Henry, Leah Hustak, Andi James, Ann Jenkins, Anton Koekemoer, Stephanie LaMassa, David Law, Alexandra Lockwood, Amaya Moro-Martin, Susan Mullally, Alyssa Pagan, Dani Player, Klaus Pontoppidan, Charles Proffitt, Christine Pulliam, Leah Ramsay, Swara Ravindranath, Neill Reid, Massimo Robberto, Elena Sabbi, Leonardo Ubeda.  The EROs were also made possible by the foundational efforts and support from the JWST instruments, STScI planning and scheduling, Data Management teams, and Office of Public Outreach.</p>
+            This image was created with Webb data from proposal 2731.
+             It is part of Webb Early Release Observations. The Early Release
+             Observations and associated materials were developed, executed, and
+             compiled by the ERO production team: Jaclyn Barrientes, Claire Blome,
+             Hannah Braun, Matthew Brown, Margaret Carruthers, Dan Coe, Joseph
+             DePasquale, Nestor Espinoza, Macarena Garcia Marin, Karl Gordon, Alaina
+             Henry, Leah Hustak, Andi James, Ann Jenkins, Anton Koekemoer, Stephanie LaMassa,
+             David Law, Alexandra Lockwood, Amaya Moro-Martin, Susan Mullally, Alyssa Pagan, Dani Player,
+             Klaus Pontoppidan, Charles Proffitt, Christine Pulliam, Leah Ramsay, Swara Ravindranath,
+             Neill Reid, Massimo Robberto, Elena Sabbi, Leonardo Ubeda.  The EROs were also made possible
+             by the foundational efforts and support from the JWST instruments, STScI planning
+             and scheduling, Data Management teams, and Office of Public Outreach.
+            </object>
+
         </div>
 
-        <div class="outer-grid">
-            <div class="inner-grid">
-                <img src="pic1.jpeg" alt="pic1">
+
+        <hr>
+        <div class="other">
+            <h2>Recent photos</h2>
+        </div>
+        <div class="other-pics">
+            <div class="outer-grid">
+                <div class="inner-grid">
+                    <img src="pic1.jpeg" alt="pic1">
+                </div>
+                <div class="inner-grid">
+                    <img src="pic2.jpeg" alt="pic2">
+                </div>
+                <div class="inner-grid">
+                    <img src="pic3.jpeg" alt="pic3">
+                </div>
             </div>
-            <div class="inner-grid">
-                <img src="pic2.jpeg" alt="pic2">
-            </div>
-            <div class="inner-grid">
-                <img src="pic3.jpeg" alt="pic3">
-            </div>
-            <div class="inner-grid">
-                <img src="pic4.jpeg" alt="pic4">
+            <div class="sec-calendar-btn">
+                <button>Calendar</button>
             </div>
         </div>
     </body>
