@@ -1,0 +1,70 @@
+ .vid {
+  position:fixed;
+ }
+
+ #video-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+ }
+
+ .overlay {
+  position: absolute;
+  top: 0;
+  left:0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+ }
+
+ .about-container {
+  color: #262324;
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, 0.2);
+  object-fit: contain;
+ }
+
+ .description {
+  width: 70%;
+  margin: 0 auto;
+  padding: 20px;
+  margin: auto;
+  color: #d2d2d2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 50;
+  object-fit: contain;
+ }
+
+ .para {
+  font-size: 30px;
+ }
+
+ @media screen and (max-width: 960px) {
+
+  .description {
+    width: 70%;
+    margin: 0 auto;
+    margin: auto;
+    color: #d2d2d2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    object-fit: contain;
+   }
+
+  .para {
+  font-size: 20px;
+ }
+
+
+ }
