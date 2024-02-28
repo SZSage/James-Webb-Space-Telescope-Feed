@@ -10,13 +10,12 @@ from astropy.io import fits
 import numpy as np
 import matplotlib.pyplot as plt
 from astropy.visualization import (astropy_mpl_style, LogStretch, ImageNormalize)
+import os
 from matplotlib.colors import LogNorm
-from typing import Any
 
 class Processing:
     def __init__(self) -> None:
         pass
-
 
     def asinh_scaling(self, data: np.ndarray, beta: float =5.0) -> np.ndarray:
         """
@@ -55,12 +54,51 @@ class Processing:
             return scaled_data
 
 
+    def visualize_fits(self, image_data, frame=0) -> None:
+        """
+        Visualize processed FITS data.
+        """
+        plt.figure()
+        # assuming image_data is a 3D array so we can visualize the first frame
+        if image_data.ndim == 3:
+            # visualize first frame for 3D data
+            plt.imshow(image_data[0], cmap="magma")
+        elif image_data.ndim == 2:
+            # directly visualize for 3D data
+            plt.imshow(image_data, cmap="magma")
+        else:
+            raise ValueError("image_data must be 2D or 3D.")
+    
+        plt.colorbar()
+        plt.axis("off")
+        plt.show()
+        plt.imsave("new_img", image_data, origin="lower")
+
+    def convert_to_png(self, data: np.ndarray, output_filename: str) -> None:
+        """
+        Converts the fits files to PNG
+        """
+        img = data.imsave("file_name",)
+
+        # imsave: output_filename, data, cmap, origin="lower"
+
+    def rename(self) -> None:
+        """
+        Renames files
+        """
+        
+
+
 def main():
-    target_name = "fits/jw01701-o052_t007_nircam_clear-f140m-sub640_i2d.fits"
-    #target_name = "fits/jw01701052001_02106_00016_nrcblong_i2d.fits"
+    target_name = "../fit_files/jw01701-o052_t007_nircam_clear-f140m-sub640_i2d.fits"
+    #target_name = "../fit_files/jw01334-o003_t003_nircam_clear-f480m_i2d.fits"
+    #target_name = "../fit_files/jw01701052001_02106_00016_nrcblong_i2d.fits"
     #target_name = "fits/jw01701052001_02106_00016_nrcblong_cal.fits"
     ok = Processing()
     process = ok.process_fits(target_name, use_asinh=True)
+    # target_name.replace(".fits", ".png")
+    plot = ok.visualize_fits(process)
+
 
 if __name__ == "__main__":
     main()
