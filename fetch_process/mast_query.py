@@ -237,7 +237,7 @@ class MastQuery:
 
 """
 def main() -> None:
-    mast_token = "94a6a64c40904490a3512db4218ffca9"
+    mast_token = ""
 
     query = MastQuery("IR05189", "MIRI", "downloaded_fits/")
     query.mast_auth(mast_token)
