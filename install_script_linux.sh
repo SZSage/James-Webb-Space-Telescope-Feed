@@ -19,10 +19,10 @@ sudo apt-get install -y sqlite3
 python3 -m pip install --upgrade pip
 
 # install Python libraries for application
-python3 -m pip install astropy matplotlib numpy beautifulsoup requests pytest
+python3 -m pip install astropy matplotlib numpy pandas beautifulsoup requests pytest
 
 # install Python Astroquery library
 python3 -m pip install -U --pre astroquery
 
 # verify installation
-python3 -c "import sqlite3; import astropy; import astroquery; import matplotlib; import numpy; import bs4; import requests; import pytest; print('All modules installed successfully')"
+python3 -c "import sqlite3; import astropy; import astroquery; import matplotlib; import numpy; import pandas; import bs4; import requests; import pytest; print('All modules installed successfully')"
