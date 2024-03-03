@@ -11,37 +11,45 @@ import numpy as np
 import matplotlib.pyplot as plt
 from astropy.visualization import (astropy_mpl_style, LogStretch, ImageNormalize)
 import os
-from matplotlib.colors import LogNorm
+from setup_logger import logger
+
+import pprint
+pp = pprint.PrettyPrinter(indent=4)
 
 class Processing:
-    def __init__(self) -> None:
-        pass
+    def __init__(self, download_dir="processed_png") -> None:
+        self.download_dir = download_dir
 
-    def asinh_scaling(self, data: np.ndarray, beta: float =5.0) -> np.ndarray:
+    def asinh_scaling(self, data: np.ndarray, scale_min=None, scale_max=None, non_linear=2.0):
         """
         Apply asinh scaling to the data.
         Parameters:
-        - data: 2D numpy array, the image data to scale.
+            data (np.ndarray): 2D numpy array, the image data to scale.
         - beta: float, scaling factor controlling the transition between linear and log.
 
         Returns:
-        - Scaled data as a 2D numpy array.
+            Scaled data as a 2D numpy array.
         """
-        data = data.astype(np.float64)
-        scaled_data = np.arcsinh(data / beta) / np.arcsinh(1.0 / beta)
+        if scale_min is None:
+            scale_min = np.nanmin(data)
+        if scale_max is None:
+            scale_max = np.nanmax(data)
+        factor = np.arcsinh((scale_max - scale_min) / non_linear)
+        scaled_data = np.arcsinh((data - scale_min) / non_linear) / factor
         return scaled_data
 
-
-    def process_fits(self, fits_path: str, use_asinh: bool = False, beta: float = 5.0) -> np.ndarray:
+    def process_fits(self, fits_path: str, use_asinh: bool=True, beta: float=5.0) -> np.ndarray:
         """
         Processes a FITS file and return the scaled image data.
         """
         with fits.open(fits_path) as hdul:
             # image data in first extension
-            data = hdul[1].data
+            hdul.info()
+            data = hdul[1].data # type: ignore
+            logger.info(f"IMAGE DATA IN FIRST EXTENSION: \n {data}")
             if use_asinh:
                 # apply asinh scaling
-                scaled_data = self.asinh_scaling(data, beta=beta)
+                scaled_data = self.asinh_scaling(data, non_linear=beta)
             else:
                 # apply log10 scaling, ensure no log(0) issues
                 data[data <= 0] = np.nan  
@@ -52,7 +60,6 @@ class Processing:
             # normalize scaled data for display
             scaled_data = (scaled_data - np.nanmin(scaled_data)) / (np.nanmax(scaled_data) - np.nanmin(scaled_data))
             return scaled_data
-
 
     def visualize_fits(self, image_data, frame=0) -> None:
         """
@@ -72,33 +79,58 @@ class Processing:
         plt.colorbar()
         plt.axis("off")
         plt.show()
-        plt.imsave("new_img", image_data, origin="lower")
 
-    def convert_to_png(self, data: np.ndarray, output_filename: str) -> None:
+    def convert_to_png(self, data: np.ndarray, output_filename: str, switch: bool) -> None:
         """
-        Converts the fits files to PNG
+        Converts the processed FITS data to PNG and saves them to a directory.
+        
+        Parameters:
+            data (np.ndarray): Image data to be saved
+            output_filename (str): The filename for the saved PNG file
+        Returns:
+            None
         """
-        img = data.imsave("file_name",)
+        # construct path for file
+        paths = os.path.join(self.download_dir, output_filename)
+        # ensures directory exists
+        os.makedirs(self.download_dir, exist_ok=True)
 
-        # imsave: output_filename, data, cmap, origin="lower"
+        if switch:
+            fig, ax = plt.subplots()
+            cax = ax.imshow(data, cmap="magma", origin="lower")
+            fig.colorbar(cax, ax=ax)
+            ax.axis("off")
+            plt.savefig(paths, bbox_inches="tight", pad_inches=0)
+            logger.info(f"File with colorbar saved to {paths}")
+            plt.close(fig)
+        else:
+            # save image data as png
+            plt.imsave(paths, data, cmap="magma", origin="lower")
+            logger.info(f"File saved to {paths}")
 
     def rename(self) -> None:
         """
         Renames files
         """
-        
+        pass
 
-
+"""
 def main():
-    target_name = "../fit_files/jw01701-o052_t007_nircam_clear-f140m-sub640_i2d.fits"
     #target_name = "../fit_files/jw01334-o003_t003_nircam_clear-f480m_i2d.fits"
+    #target_name = "../fit_files/jw01701-o052_t007_nircam_clear-f140m-sub640_i2d.fits"
+    #target_name = "../fit_files/jw01701-o052_t007_nircam_f150w2-f164n-sub640_i2d.fits"
+    #target_name = "../fit_files/jw01701052001_02106_00014_nrcb3_i2d.fits"
+    #target_name = "../fit_files/jw04098001001_04101_00001-seg003_nis_calints.fits"
+    #target_name = "../fit_files/jw03730008001_03101_00001-seg004_mirimage_calints.fits"
+    #target_name = "../fit_files/jw01701052001_02106_00016_nrcblong_cal.fits"
+    target_name = "downloaded_fits/jw03368-o140_t001_nircam_clear-f356w-sub160p_i2d.fits"
     #target_name = "../fit_files/jw01701052001_02106_00016_nrcblong_i2d.fits"
-    #target_name = "fits/jw01701052001_02106_00016_nrcblong_cal.fits"
     ok = Processing()
-    process = ok.process_fits(target_name, use_asinh=True)
-    # target_name.replace(".fits", ".png")
-    plot = ok.visualize_fits(process)
-
+    ok.inspect_fits_content(target_name)
+    data = ok.process_fits(target_name, use_asinh=True)
+    ok.visualize_fits(data)
 
 if __name__ == "__main__":
     main()
+
+"""
