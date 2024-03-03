@@ -1,0 +1,17 @@
+
+{
+ "slides":[
+       {
+        "title": "first image",
+        "src" : "./pngPhoto/pic1.jpg"
+    },
+    {
+        "title": "second image",
+        "src" : "./pngPhoto/pic2.jpg"
+    },
+    {
+        "title": "third image",
+        "src" : "./pngPhoto/pic3.jpg"
+    }
+]
+}

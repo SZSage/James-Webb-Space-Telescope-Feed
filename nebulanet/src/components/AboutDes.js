@@ -1,5 +1,4 @@
 import React from "react";
-import { Link } from 'react-router-dom';
 import './AboutDes.css';
 
 
@@ -20,10 +19,8 @@ function AboutDes () {
                 This website is designed to be both educational and engaging, enabling users of all backgrounds to
                 view and learn about these discoveries.
             </p>
-
             </div>
         </div>
-
     )
 }
 
