@@ -2,18 +2,18 @@
 Filename: mast_query.py
 Author: Simon Zhao
 Date Created: 02/27/2024
-Date Last Modified: 02/28/2024
+Date Last Modified: 03/03/2024
 Description: This file querys into the MAST database based on observations
 """
 
 from astroquery.mast import Observations
 from astropy.io import fits
-from setup_logger import logger
 from io import BytesIO
+from setup_logger import logger
+import pandas as pd
+import sqlite3
 import requests
 import os
-import pprint
-pp = pprint.PrettyPrinter(indent=4)
 
 class MastQuery:
     def __init__(self, target_name: str, instrument: str, download_dir: str="downloaded_fits"):
@@ -41,7 +41,11 @@ class MastQuery:
         except Exception as e:
             logger.error(f"Failed to authenticate MAST API: {e}")
 
-    def fetch_fits_data(self) -> None:
+    
+
+
+
+    def fetch_fits_data(self) -> list | None:
         """
         Search for processed FITS files in the MAST database and display them.
 
@@ -51,9 +55,8 @@ class MastQuery:
         Returns:
             None
         """
-
         # query into MAST database and select only PUBLIC JWST data
-        obs_table = Observations.query_criteria(target_name=self.target_name, obs_collection="JWST", dataRights="PUBLIC")
+        obs_table = Observations.query_criteria(target_name=self.target_name, obs_collection="JWST", dataRights="PUBLIC") # type:ignore
         logger.info(f"================OBS_TABLE================: \n {obs_table}")
 
         if not obs_table or len(obs_table) == 0:
@@ -61,8 +64,13 @@ class MastQuery:
             return
 
         # get product list for observation 
-        data_products = Observations.get_product_list(obs_table)
+        data_products = Observations.get_product_list(obs_table) # type:ignore
         logger.info(f"================DATA PRODUCTS==============: \n {data_products}")
+
+        # check if data_products is empty
+        if len(data_products) == 0:
+            logger.warning("No data products were found for the given query.")
+            return
         product = data_products[0]["dataURI"]
         logger.info(f"================DATA URI===================: \n {product}")
         #logger.info(self.filter_fits_by_instrument(data_products, self.instrument_name))
@@ -87,7 +95,34 @@ class MastQuery:
             return filtered_fits
 
 
-    def stream_fits_data(self, data_uri: str):
+    def filter_files(self, product_list: list) -> list | None:
+        """
+        Filter FITS files ending in "_i2d.fits" or "_s2d.fits" or "_cal.fits" or "_calints.fits" 
+        and avoid "seg"
+
+        Parameters:
+            product_list (list): 
+
+        Returns:
+            list or None
+        """
+        filtered_fits = [product for product in product_list if "productFilename" in product.colnames and 
+                        (product["productFilename"].endswith("_i2d.fits") or 
+                         product["productFilename"].endswith("_s2d.fits") or 
+                         product["productFilename"].endswith("_calints.fits")
+                         )]
+        # check if fits files are found
+        if not filtered_fits:
+            logger.warning(f"No filtered FITS files were found for: {self.target_name}")
+        else:
+            # print out list of filtered FITs files
+            logger.info(f"Filtered FITS files for {self.target_name}")
+            for product in filtered_fits:
+                logger.info(product["productFilename"])
+            return filtered_fits
+
+
+    def stream_fits_data(self, data_uri: str) -> list | None:
         """
         Stream FITS data from the MAST database.
 
@@ -100,13 +135,15 @@ class MastQuery:
         try:
             response = requests.get(data_uri, stream=True)
             response.raise_for_status()
-
             logger.info(f"Successfully connected to {data_uri}, status code: {response.status_code}")
 
             # load FITS data from the response content
             with fits.open(BytesIO(response.content)) as hdul:
                 logger.info(f"Successfully opened FITS data from {data_uri}")
-                return hdul  # returning the HDU list object
+                image_data = hdul.info()
+                logger.info(image_data)
+                # return hdul list
+                return hdul
         except requests.RequestException as e:
             logger.error(f"Request exception occurred: {e}")
         except Exception as e:
@@ -142,31 +179,75 @@ class MastQuery:
         """
         pass
 
-    def filter_fits_by_instrument(self, data_products: list, target_instrument: str):
-        """
 
+    def download_specific_fits(self, fits_filename: str) -> None:
+        """
+        Downloads a specific FITS file by filename and saves it to the specified download directory.
+        NOTE: This function is used for testing purposes.
+
+        Parameters:
+            fits_filename (str): The filename of the FITS file to download.
+
+        Returns:
+            None
+        """
+        # Construct the download URL
+        base_url = "https://mast.stsci.edu/api/v0.1/Download/file?uri="
+        product_uri = f"mast:JWST/product/{fits_filename}"
+        download_url = base_url + product_uri
+
+        # Define the path where the file will be saved
+        save_path = os.path.join(self.download_dir, fits_filename)
+
+        try:
+            # Make the request and stream the content to a file
+            with requests.get(download_url, stream=True) as response:
+                response.raise_for_status()  # Check for request errors
+                with open(save_path, 'wb') as file:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        file.write(chunk)
+            logger.info(f"Successfully downloaded {fits_filename} to {save_path}")
+        except requests.RequestException as e:
+            logger.error(f"Request exception occurred while downloading {fits_filename}: {e}")
+        except Exception as e:
+            logger.error(f"An error occurred while downloading {fits_filename}: {e}")
+
+
+    def filter_fits_by_instrument(self, data_products: list, target_instrument: str) -> list:
+        """
         """
         filtered_products = [product for product in data_products if "instrument_name" in product and product["instrument_name"] == target_instrument]
         return filtered_products
 
     def combine(self, fits_uri: str) -> str:
+        """
+        Combines FIT URI with the MAST URL and add it to dictionary.
+        """
         mast_url = "https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:JWST/products/"
         new = mast_url + fits_uri
         self.fits_URIs = new
         logger.info(f"FITS URIs DICTIONARY: \n {self.fits_URIs}")
         return new
 
+    def connect_sqlite3(self, path_db: str) -> None:
+        """
+        Establish a connection to SQLite database.
+        """
+
+
+"""
 def main() -> None:
-    mast_token = "PLACE_TOKEN_HERE"
+    mast_token = "94a6a64c40904490a3512db4218ffca9"
 
-    query = MastQuery("M-82", "NIRCam", "downloaded_fits/")
+    query = MastQuery("IR05189", "MIRI", "downloaded_fits/")
     query.mast_auth(mast_token)
-    #fits_data = query.fetch_fits_data()
-    new_url = query.combine("jw02677001003_03101_00001_nrs1_s2d.fits")
-    query.stream_fits_data(new_url)
-
-
+    fits_data = query.fetch_fits_data()
+    fits_filename = "jw03368-o140_t001_nircam_clear-f356w-sub160p_i2d.fits"
+    #query.download_specific_fits(fits_filename)
+    #new_url = query.combine("jw01701-o052_t007_nircam_clear-f140m-sub640_i2d.fits")
+    #hdul_data = query.stream_fits_data(new_url)
+    #image_data = hdul_data[1].data
 
 if __name__ == "__main__":
     main()
-
+"""
