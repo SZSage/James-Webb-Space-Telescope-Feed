@@ -1,0 +1,18 @@
+.footer-container {
+  background-color: #262323;
+  color: #d2d2d2;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  object-fit: contain;
+  padding: 40px;
+}
+
+
+p {
+  font-size: 15px;
+}
+
+.extra {
+  padding: 40px;
+}
