@@ -106,21 +106,11 @@ class Processing:
         Returns:
             np.ndarray: Data scaled using histogram equalization.
         """
-        # handling NaN values by replacing them with the minimum value
-        nan_mask = np.isnan(data)
-        data_clean = data.copy()
-        data_clean[nan_mask] = np.nanmin(data)
-        
-        # histogram equalization process
-        img_hist, bins = np.histogram(data_clean.flatten(), bins=np.linspace(np.nanmin(data), np.nanmax(data), 257))
+        img_hist, bins = np.histogram(data.flatten(), bins=np.arange(257))
         cdf = img_hist.cumsum()
-        cdf_normalized = cdf * (img_hist.max() / cdf.max())
-        scaled_data = np.interp(data_clean.flatten(), bins[:-1], cdf_normalized)
-        
-        # applying mask to revert NaN values
-        scaled_data_reshaped = scaled_data.reshape(data.shape)
-        scaled_data_reshaped[nan_mask] = np.nan
-        return scaled_data_reshaped
+        cdf_normalized = cdf * float(img_hist.max()) / cdf.max()
+        scaled_data = np.interp(data.flatten(), bins[:-1], cdf_normalized)
+        return scaled_data.reshape(data.shape)
 
 
     def asinh_scaling(self, data: np.ndarray, scale_min=None, scale_max=None, non_linear=2.0) -> np.ndarray:
@@ -157,7 +147,6 @@ class Processing:
         Parameters:
             fits_path (str): Path to the FITS file.
         """
-        
         methods = ["linear", "asinh", "sqrt", "log", "hist_eq"]
         # initialize subplots
         fig, axs = plt.subplots(1, len(methods), figsize=(5 * len(methods), 5))
