@@ -1,6 +1,12 @@
 import React from 'react'
 import './Footer.css'
 import { Link } from 'react-router-dom';
+
+/*
+Footer.js is a component that is utilized by every subpage within NebulaNet as it contains the information regarding the site and its
+creation. It helps with creating a offical look to the site and gives each page a visual end object so the user can be sure that
+they have reached the end of the webpage and have viewed all of its content
+ */
 function Footer() {
   return (
     <div className='footer-container'>

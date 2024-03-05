@@ -3,8 +3,8 @@
   position: relative;
   align-items: center;
   display: flex;
-  width: 600px;
-  height: 400px;
+  width: 700px;
+  height: 500px;
 }
 
 .slide {
@@ -14,6 +14,17 @@
   height: 150%;
   border-radius: 35px;
 }
+
+.picture-description {
+  margin-top: 1000px;
+  font-size: 25;
+
+}
+
+.pic-hidden {
+  display: none;
+}
+
 
 .slide-hidden {
   display: none;
@@ -42,7 +53,7 @@
 .indicators {
   display: flex;
   position: absolute;
-  bottom: 1rem;
+  bottom: -9rem;
 }
 
 .indicator {
@@ -54,4 +65,12 @@
   margin: 0 0.2rem;
   box-shadow: 0px 0px 5px #555;
   cursor: pointer;
+}
+
+@media screen and (max-width: 960px) {
+  .carousel-container {
+    width: 100px;
+
+  }
+
 }

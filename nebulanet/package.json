@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.5.1",
+    "@react-three/fiber": "^8.15.19",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -17,6 +18,8 @@
     "react-router-dom": "^6.22.1",
     "react-scripts": "5.0.1",
     "styled-components": "^5.3.10",
+    "three": "^0.162.0",
+    "three-gltf-loader": "^1.111.0",
     "url": "^0.11.3",
     "web-vitals": "^2.1.4"
   },

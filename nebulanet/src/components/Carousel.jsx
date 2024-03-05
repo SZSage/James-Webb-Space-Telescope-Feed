@@ -1,7 +1,11 @@
 import React, { useState } from 'react'
 import "./Carousel.css"
 import {BsArrowLeftCircleFill, BsArrowRightCircleFill} from 'react-icons/bs'
-
+/*
+Carousel.js is a major react component that is the essesence of showing the daily photos taken by the James Webb Teslescope
+and is displayed on the Home page of the website NebulaNet. The component is called by Home.js within the pages directory and
+is displayed accordingly wihtin the syle specifications noted in Carousel.css:w
+*/
 
 function Carousel ({data}) {
     console.log(data)
@@ -20,12 +24,15 @@ function Carousel ({data}) {
     <div className="carousel-container">
         <BsArrowLeftCircleFill onClick={prevSlide} className='arrow arrow-left'/>
         {data.slides.map((item, index) => {
-            return (<img
+            return (<>
+            <img
             src={item.src}
             alt={item.title}
             key={index}
             className={slide === index ? "slide" : "slide slide-hidden"}
             />
+            <p className={slide === index ? "picture-description" : "picture-description pic-hidden"}/>
+            </>
             );
         })}
         <BsArrowRightCircleFill className='arrow arrow-right' onClick={nextSlide}/>
