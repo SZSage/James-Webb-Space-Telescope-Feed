@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import './Model.css';
 import SceneInit from './Sceneinit';
+import Footer from './Footer';
 
 /**
  RenderView.jsx is the file that is in charge of rendering the 3D model of the James Webb Telescope which offeres the users an interactive model
@@ -36,9 +37,12 @@ function RenderView () {
   }, []);
 
   return (
+    <>
     <div className='model'>
       <canvas id="myThreeJsCanvas" />
     </div>
+    <Footer/>
+    </>
   );
 }
 
