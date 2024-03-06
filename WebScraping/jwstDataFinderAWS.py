@@ -101,7 +101,9 @@ def write_txt_to_s3(jwst_data_list, bucket_name = 'nebulanet.net', object_key='W
            2. bucket_name (name of s3 bucket)
            3. object_key (path to object inside s3 bucket)
     """
-    new_content = '\n'.join(jwst_data_list)
+    # flatten list of lists from scrape_jwst_data function to aggregate data into one string
+    flattened_list = [item for sublist in jwst_data_list for item in sublist]
+    new_content = '\n'.join(flattened_list)
 
     try:
         # overwrite the existing S3 files content
@@ -132,13 +134,13 @@ def get_jwst_as_py_list():
     # returns list as python list
     return scraped_jwst_data
 
-
-# calls the return jwst_data function
-session = create_session()
-get_jwst_data = return_jwst_data(session)
-session.close()
-
-# test = scrape_jwst_data(url)
-
-# print done when finished
-print("done")
+def lambda_handler(event, context):
+    # calls the return jwst_data function
+    session = create_session()
+    get_jwst_data = return_jwst_data(session)
+    session.close()
+    
+    # test = scrape_jwst_data(url)
+    
+    # print done when finished
+    print("done")
