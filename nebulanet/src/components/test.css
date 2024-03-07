@@ -1,0 +1,13 @@
+.App {
+  background-color: #d2d2d2;
+  padding: 30px;
+}
+
+
+.title {
+  padding-left: 25%;
+  padding-bottom: 50px;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
