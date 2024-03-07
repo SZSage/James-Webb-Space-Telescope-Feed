@@ -1,5 +1,6 @@
 import React from "react";
 import './AboutDes.css';
+import Footer from "./Footer";
 
 /*
 AboutDes.js is the javascript page that is tasked with creating the "About" subpage that is on NebulaNet. It consists of information regarding
@@ -29,13 +30,13 @@ function AboutDes () {
                     </p>
                 <img className="diagram" src="realJSWT.jpg" width={1000}  />
                 <p className="subtitle">*James Webb telescope’s 18-segmented gold mirror is specially designed to capture infrared light
-                    from the first galaxies that formed in the early universe.</p>
+                        from the first galaxies that formed in the early universe.</p>
                 <p className="facts">
-                    Webb studies every phase in the history of our Universe, ranging from the first luminous glows after the
-                    Big Bang, to the formation of solar systems capable of supporting life on planets like Earth, to the
-                    evolution of our own Solar System. Webb launched on Dec. 25th 2021. It does not orbit around the Earth
-                    like the Hubble Space Telescope, it orbits the Sun 1.5 million kilometers (1 million miles) away from
-                    he Earth at what is called the second Lagrange point or L2.
+                        Webb studies every phase in the history of our Universe, ranging from the first luminous glows after the
+                        Big Bang, to the formation of solar systems capable of supporting life on planets like Earth, to the
+                        evolution of our own Solar System. Webb launched on Dec. 25th 2021. It does not orbit around the Earth
+                        like the Hubble Space Telescope, it orbits the Sun 1.5 million kilometers (1 million miles) away from
+                        he Earth at what is called the second Lagrange point or L2.
                 </p>
                 <img className="diagram" src="teleinfo.jpg"/>
                 <h4>How does it differ compared to the famours Hubble Space Telescope?</h4>
@@ -47,20 +48,17 @@ function AboutDes () {
                     6 times larger in area), giving it more light-gathering power. It also has infrared instruments with longer
                     wavelength coverage and greatly improved sensitivity than Hubble. Finally, Webb is operating much farther from Earth,
                     maintaining its extremely cold operating temperature, stable pointing and higher observing efficiency than the Earth-orbiting Hubble.
-
                 </p>
-
-            </div>
-        </div>
-        <div className="creator">
-        <hr classname="solid"/>
-
-        <p className="para">This project envisions a website dedicated to provide the latest observations and discoveries captured
+                <div className="creator">
+                    <hr classname="solid"/>
+                    <p3 className="notes">This project envisions a website dedicated to provide the latest observations and discoveries captured
                     by the James Webb Space Telescope (JWST), sourced directly from the Mikulski Archive for Space Telescopes
                     (MAST) database. It aims to serve as an interactive and educational portal where users can explore high
                     definition visuals of galaxies, stars, planets, and other celestial phenomena. Each image will be
                     accompanied by detailed information, including the scientific insights it provides, the specific JWST
-                    instruments involved in its capture, and other technical data. </p>
+                    instruments involved in its capture, and other technical data. </p3>
+                </div>
+            </div>
 
         </div>
         </>

@@ -1,0 +1,18 @@
+
+
+.about-content {
+  display: flex;
+  justify-content:center;
+  flex-direction: column;
+}
+
+
+
+.creator {
+  background-color: rgba(0, 0, 0,0.3);
+  display: flex;
+  color: #d2d2d2;
+  flex-direction: column;
+  margin-bottom: auto;
+  padding: 2%;
+}

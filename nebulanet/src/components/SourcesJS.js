@@ -10,16 +10,26 @@ function SourcesJS () {
   return (
     <div className="sourcesJS-container">
       <video className="video2" src="vid2background.mp4" autoPlay loop muted />
-      <div className="overlay2"></div>
-        <div className="contents2">
+      <div className="subcontents">
           <h1>Sources</h1>
+      <hr classname="solid"/>
       </div>
-      <div className='subcontents'>
-          <p className="bio">
-            This is the sources page that will talk about all the technology and significance of the
-            James Webb Space Telescope
-          </p>
-     </div>
+      <div className="description">
+        <h3>Main Resources for accessing JWST data and instrument data</h3>
+        <a className="links" href="https://jwst-docs.stsci.edu/">https://jwst-docs.stsci.edu/</a>
+        <h3>MAST queries using Astroquery Docs</h3>
+        <a className="links" href="https://astroquery.readthedocs.io/en/latest/mast/mast.html">https://astroquery.readthedocs.io/en/latest/mast/mast.html</a>
+        <h3>Interacting with MAST API</h3>
+        <a className="links" href="https://outerspace.stsci.edu/display/MASTDOCS/Using+MAST+APIs#UsingMASTAPIs-AstroquerySearchandRetrieval">https://outerspace.stsci.edu/display/MASTDOCS/Using+MAST+APIs#UsingMASTAPIs-AstroquerySearchandRetrieval</a>
+        <h3>FIT files and metadata extraction/handeling</h3>
+        <a className="links" href="https://mast.stsci.edu/api/v0/_jwst_inst_keywd.html">https://mast.stsci.edu/api/v0/_jwst_inst_keywd.html</a>
+        <a className="links" href="https://mast.stsci.edu/api/v0/_c_a_o_mfields.html">https://mast.stsci.edu/api/v0/_c_a_o_mfields.html</a>
+        <a className="links" href="https://docs.astropy.org/en/stable/io/fits/index.html">https://docs.astropy.org/en/stable/io/fits/index.html</a>
+        <h3>Streaming FITS data onto memory</h3>
+        <a className="links" href="https://docs.python.org/3/library/io.html">https://docs.python.org/3/library/io.html</a>
+        <h3>Scaling FITS data</h3>
+        <a className="links" href="https://astromsshin.github.io/science/code/Python_fits_image/index.html">https://astromsshin.github.io/science/code/Python_fits_image/index.html</a>
+      </div>
 
     </div>
   )

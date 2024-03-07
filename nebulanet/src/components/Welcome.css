@@ -1,0 +1,35 @@
+.wrapper {
+  background-color: #d2d2d2;
+  padding: 3%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  color: #262323;
+}
+
+
+.welcome {
+  font-size:20px;
+}
+
+
+
+
+
+@media screen and (max-width: 960px){
+  .wrapper {
+    background-color: #d2d2d2;
+    padding: 10%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    color: #262323;
+  }
+
+
+  .welcome {
+    font-size:20px;
+  }
+
+}

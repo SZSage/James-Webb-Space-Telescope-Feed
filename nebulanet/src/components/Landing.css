@@ -7,7 +7,7 @@ video {
 }
 
 .landing-container {
-  height: 100vh;
+  height: 80vh;
   width: 100%;
   color: #d2d2d2;
   display: flex;
@@ -55,6 +55,9 @@ h3 {
 
 
 @media screen and (max-width: 960px) {
+  .landing-container {
+    height: auto;
+  }
   .mobile{
     justify-content: center;
     width: 100%;

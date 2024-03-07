@@ -7,16 +7,16 @@ export default function App() {
   const data = [
     {
       id: "1",
-      icon: "asset/mobile.png",
-      title: "Web Design",
+      instrument: "Infared lens",
+      title: "Carina Nebula",
       desc:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. ",
+        "This is the Carina Nebula pciture Taken by the James Webb Telescope",
       img:
-        "https://99designs-blog.imgix.net/blog/wp-content/uploads/2018/10/attachment_100040756-e1538485934255.jpeg?auto=format&q=60&fit=max&w=930"
+        "carinanebula3.jpg"
     },
     {
       id: "2",
-      icon: "asset/globe.png",
+      instrument: "asset/globe.png",
       title: "Mobile Application",
       desc:
         "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
@@ -25,7 +25,7 @@ export default function App() {
     },
     {
       id: "3",
-      icon: "asset/writing.png",
+      instrument: "asset/writing.png",
       title: "Branding",
       desc:
         "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
@@ -33,27 +33,26 @@ export default function App() {
         "https://i.pinimg.com/originals/a9/f6/94/a9f69465d972a004ad581f245d6ad581.jpg"
     }
   ];
+  /*const images = [slides.map()]*/
   return (
     <>
     <div className="App">
-        <h1 className="title">Daily Photo</h1>
       <AwesomeSlider>
         {data.map((d) => (
-          <div className="item">
-            <div className="left">
-              <div className="leftContainer">
-                <div className="imgContainer">
-                  <img src={d.icon} />
+            <>
+            <div className="item">
+                <div className="right">
+                    <img className="currentImage" src={d.img} alt="could not display figure"/>
                 </div>
-                <h2>{d.title}</h2>
-                <p>{d.desc} </p>
-              </div>
+                <div className="left">
+                    <div className="leftContainer">
+                        <h2>{d.title}</h2>
+                        <p>Description: {d.desc} </p>
+                        <p>Instrument: {d.instrument}</p>
+                    </div>
+                </div>
             </div>
-
-            <div className="right">
-              <img src="https://99designs-blog.imgix.net/blog/wp-content/uploads/2018/10/attachment_100040756-e1538485934255.jpeg?auto=format&q=60&fit=max&w=930" />
-            </div>
-          </div>
+          </>
         ))}
       </AwesomeSlider>
     </div>
