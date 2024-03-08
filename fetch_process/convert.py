@@ -16,10 +16,10 @@ import numpy as np
 import matplotlib.pyplot as plt # type: ignore
 from astropy.visualization import make_lupton_rgb, astropy_mpl_style, LogStretch, ImageNormalize
 import os
-from setup_logger import logger
+import logging
 
-import pprint
-pp = pprint.PrettyPrinter(indent=4)
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("Processing")
 
 class Processing:
     def __init__(self, download_dir="processed_png") -> None:
@@ -72,7 +72,6 @@ class Processing:
         data_clipped = np.clip(data, scale_min, scale_max)
         scaled_data = np.log10(data_clipped - scale_min + 1) / np.log10(scale_max - scale_min + 1)
         return scaled_data
-
 
     def sqrt_scaling(self, data: np.ndarray, scale_min=None, scale_max=None) -> np.ndarray:
         """
@@ -147,14 +146,15 @@ class Processing:
         Parameters:
             fits_path (str): Path to the FITS file.
         """
-        methods = ["linear", "asinh", "sqrt", "log", "hist_eq"]
+        #methods = ["linear", "asinh", "sqrt", "log", "hist_eq"]
+        methods = ["sqrt", "hist_eq"]
         # initialize subplots
-        fig, axs = plt.subplots(1, len(methods), figsize=(5 * len(methods), 5))
-        
+        fig, axs = plt.subplots(1, len(methods), figsize=(2 * len(methods), 2))
+        plt.style.use('dark_background')
         for ax, method in zip(axs, methods):
             scaled_data = self.process_fits(fits_path, scaling_method=method)
             ax.imshow(scaled_data, cmap="magma", origin="lower")
-            ax.set_title(f"{method.capitalize()} Scaling")
+            ax.set_title(f"{method.capitalize()} Scaling", color="white")
             ax.axis("off")
         
         plt.tight_layout()
@@ -178,7 +178,7 @@ class Processing:
 
             if data.ndim == 3:
                 data = data[frame]
-            logger.info(f"IMAGE DATA IN FIRST EXTENSION: \n {data}")
+            #logger.info(f"IMAGE DATA IN FIRST EXTENSION: \n {data}")
 
             # scaling methods
             if scaling_method == "asinh":
@@ -251,23 +251,3 @@ class Processing:
         """
         pass
 
-"""
-def main():
-    #target_name = "../fit_files/jw01334-o003_t003_nircam_clear-f480m_i2d.fits"
-    #target_name = "../fit_files/jw01701-o052_t007_nircam_clear-f140m-sub640_i2d.fits"
-    #target_name = "../fit_files/jw01701-o052_t007_nircam_f150w2-f164n-sub640_i2d.fits"
-    #target_name = "../fit_files/jw01701052001_02106_00014_nrcb3_i2d.fits"
-    #target_name = "../fit_files/jw04098001001_04101_00001-seg003_nis_calints.fits"
-    #target_name = "../fit_files/jw03730008001_03101_00001-seg004_mirimage_calints.fits"
-    #target_name = "../fit_files/jw01701052001_02106_00016_nrcblong_cal.fits"
-    target_name = "downloaded_fits/jw03368-o140_t001_nircam_clear-f356w-sub160p_i2d.fits"
-    #target_name = "../fit_files/jw01701052001_02106_00016_nrcblong_i2d.fits"
-    ok = Processing()
-    ok.inspect_fits_content(target_name)
-    data = ok.process_fits(target_name, use_asinh=True)
-    ok.visualize_fits(data)
-
-if __name__ == "__main__":
-    main()
-
-"""
