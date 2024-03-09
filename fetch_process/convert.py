@@ -210,7 +210,7 @@ class Processing:
         plt.axis("off")
         plt.show()
 
-    def compare_scaling_methods(self, fits_path: str, output_filename: str) -> None:
+    def compare_scaling_methods(self, fits_path: str, target_name: str, instrument: str, start_date: str) -> None:
         """
         Compare different scaling methods by visualizing them in a single plot.
         
@@ -229,8 +229,11 @@ class Processing:
             ax.set_title(f"{method.capitalize()} Scaling", color="white")
             ax.axis("off")
         
+
+        self.output_filename = f"{target_name}_{instrument}_{start_date}"
+
         plt.tight_layout()
-        paths = os.path.join(self.download_dir, output_filename)
+        paths = os.path.join(self.download_dir, self.output_filename)
         plt.savefig(paths + ".png", bbox_inches="tight", pad_inches=0)
         logger.info(f"Comparison plot saved to {paths}")
         #plt.show()
@@ -245,12 +248,29 @@ class Processing:
             metadata (dict): Metadata of a particular observation in dictionary format.
             json_filename (str): File name of json file.
         """
-        os.makedirs(self.json_dir, exist_ok=True)
+        json_file_path = os.path.join(self.json_dir, json_filename) 
+
         try:
-            json_path = os.path.join(self.json_dir, json_filename)
-            with open(json_path, "w") as json_file:
-                json.dump(metadata, json_file, indent=4)
-            logger.info(f"Metadata saved to {json_path}")
+            # checks if directory exists where the JSON file will be saved
+            os.makedirs(os.path.dirname(json_file_path), exist_ok=True)
+            
+            data = {}
+            # if file exists and is not empty, read existing data
+            if os.path.isfile(json_file_path) and os.path.getsize(json_file_path) > 0:
+                with open(json_file_path, 'r') as json_file:
+                    try:
+                        data = json.load(json_file)
+                    except json.JSONDecodeError:
+                        logger.error(f"Invalid JSON content in {json_file_path}. It will be overwritten.")
+            
+            # update data with new metadata
+            data.update(metadata)
+            
+            # write the updated data back to JSON file
+            with open(json_file_path, 'w') as json_file:
+                json.dump(data, json_file, indent=4)
+
+            logger.info(f"Metadata saved to {json_file_path}")
         except Exception as e:
             logger.error(f"Failed to save metadata to JSON: {e}")
 
