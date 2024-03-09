@@ -17,13 +17,15 @@ import matplotlib.pyplot as plt # type: ignore
 from astropy.visualization import make_lupton_rgb, astropy_mpl_style, LogStretch, ImageNormalize
 import os
 import logging
+import json
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("Processing")
 
 class Processing:
-    def __init__(self, download_dir="processed_png") -> None:
+    def __init__(self, download_dir="processed_png", json_dir="fetch_process") -> None:
         self.download_dir = download_dir
+        self.json_dir = json_dir
 
     def linear_scaling(self, data, scale_min=None, scale_max=None) -> np.ndarray:
         """
@@ -73,26 +75,37 @@ class Processing:
         scaled_data = np.log10(data_clipped - scale_min + 1) / np.log10(scale_max - scale_min + 1)
         return scaled_data
 
-    def sqrt_scaling(self, data: np.ndarray, scale_min=None, scale_max=None) -> np.ndarray:
+    def sqrt_scaling(self, data: np.ndarray, scale_min=None, scale_max=None, percentiles=(1, 99)) -> np.ndarray:
         """
-        Apply square root scaling to the data.
+        Apply square root scaling to the data with percentile-based dynamic range adjustment.
 
         Parameters:
             data (np.ndarray): Input data array to be scaled.
-            scale_min (float, optional): Minimum value for scaling.
-            scale_max (float, optional): Maximum value for scaling.
+            scale_min (float, optional): Minimum value for scaling. Overrides percentile if provided.
+            scale_max (float, optional): Maximum value for scaling. Overrides percentile if provided.
+            percentiles (tuple): Percentile values to compute dynamic scale_min and scale_max if not provided.
 
         Returns:
             np.ndarray: Square root scaled data.
         """
+        # handle NaN values from hdul data
         valid_data = data[np.isfinite(data)]
-        if scale_min is None:
-            scale_min = np.nanmin(valid_data)
-        if scale_max is None:
-            scale_max = np.nanmax(valid_data)
         
+        # compute percentile-based scale_min and scale_max if not provided
+        if scale_min is None or scale_max is None:
+            p_low, p_high = np.percentile(valid_data, percentiles)
+            scale_min = p_low if scale_min is None else scale_min
+            scale_max = p_high if scale_max is None else scale_max
+
+        # ensure data values fall within scale_min and scale_max range
         data_clipped = np.clip(data, scale_min, scale_max)
+
+        # apply square root scaling within the adjusted dynamic range
         scaled_data = np.sqrt(data_clipped - scale_min) / np.sqrt(scale_max - scale_min)
+
+        # ensure scaled data is within [0, 1] after scaling
+        scaled_data = np.clip(scaled_data, 0, 1)
+
         return scaled_data
 
     def hist_eq_scaling(self, data: np.ndarray) -> np.ndarray:
@@ -139,26 +152,6 @@ class Processing:
         scaled_data = np.arcsinh((data - scale_min) / non_linear) / factor
         return scaled_data
 
-    def compare_scaling_methods(self, fits_path: str) -> None:
-        """
-        Compare different scaling methods by visualizing them in a single plot.
-        
-        Parameters:
-            fits_path (str): Path to the FITS file.
-        """
-        #methods = ["linear", "asinh", "sqrt", "log", "hist_eq"]
-        methods = ["sqrt", "hist_eq"]
-        # initialize subplots
-        fig, axs = plt.subplots(1, len(methods), figsize=(2 * len(methods), 2))
-        plt.style.use('dark_background')
-        for ax, method in zip(axs, methods):
-            scaled_data = self.process_fits(fits_path, scaling_method=method)
-            ax.imshow(scaled_data, cmap="magma", origin="lower")
-            ax.set_title(f"{method.capitalize()} Scaling", color="white")
-            ax.axis("off")
-        
-        plt.tight_layout()
-        plt.show()
 
     def process_fits(self, fits_path: str, scaling_method: str, frame=0, **kwargs) -> np.ndarray:
         """
@@ -216,6 +209,50 @@ class Processing:
         plt.colorbar()
         plt.axis("off")
         plt.show()
+
+    def compare_scaling_methods(self, fits_path: str, output_filename: str) -> None:
+        """
+        Compare different scaling methods by visualizing them in a single plot.
+        
+        Parameters:
+            fits_path (str): Path to the FITS file.
+        """
+        #methods = ["linear", "asinh", "sqrt", "log", "hist_eq"]
+        methods = ["sqrt", "hist_eq"]
+        # initialize subplots
+        #fig, axs = plt.subplots(1, len(methods), figsize=(2 * len(methods), 2))
+        fig, axs = plt.subplots(1, len(methods), figsize=(10, 5))
+        plt.style.use('dark_background')
+        for ax, method in zip(axs, methods):
+            scaled_data = self.process_fits(fits_path, scaling_method=method)
+            ax.imshow(scaled_data, cmap="magma", origin="lower")
+            ax.set_title(f"{method.capitalize()} Scaling", color="white")
+            ax.axis("off")
+        
+        plt.tight_layout()
+        paths = os.path.join(self.download_dir, output_filename)
+        plt.savefig(paths + ".png", bbox_inches="tight", pad_inches=0)
+        logger.info(f"Comparison plot saved to {paths}")
+        #plt.show()
+        # close figure to free memory
+        plt.close(fig)
+
+    def append_metadata_to_json(self, metadata: dict, json_filename: str) -> None:
+        """
+        Adds observation metadata into a json file.
+
+        Parameters:
+            metadata (dict): Metadata of a particular observation in dictionary format.
+            json_filename (str): File name of json file.
+        """
+        os.makedirs(self.json_dir, exist_ok=True)
+        try:
+            json_path = os.path.join(self.json_dir, json_filename)
+            with open(json_path, "w") as json_file:
+                json.dump(metadata, json_file, indent=4)
+            logger.info(f"Metadata saved to {json_path}")
+        except Exception as e:
+            logger.error(f"Failed to save metadata to JSON: {e}")
 
     def convert_to_png(self, data: np.ndarray, output_filename: str, switch: bool) -> None:
         """
