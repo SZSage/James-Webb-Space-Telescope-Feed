@@ -3,7 +3,6 @@ import Landing from '../Landing.js';
 import Footer from '../Footer.js';
 import '../../App.js';
 import App from "../test.jsx"
-import "./Home.css";
 import Welcome from "../Wecome.js";
 /*
 Home.js is the main component for the About page and calls the Landing and Footer component to create the entire Home

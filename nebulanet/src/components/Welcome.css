@@ -1,6 +1,6 @@
 .wrapper {
-  background-color: #d2d2d2;
   padding: 3%;
+  background-color: #d2d2d2;
   display: flex;
   align-items: center;
   flex-direction: column;
@@ -8,18 +8,30 @@
 }
 
 
+
 .welcome {
   font-size:20px;
 }
 
+.link-cont {
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  color: #d2d2d2;
+  flex-direction: column;
+  text-decoration: none;
+}
 
-
+.links {
+  display: flex;
+  flex-direction: column;
+}
 
 
 @media screen and (max-width: 960px){
   .wrapper {
     background-color: #d2d2d2;
-    padding: 10%;
+    padding: 150px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -31,5 +43,7 @@
   .welcome {
     font-size:20px;
   }
+
+
 
 }
