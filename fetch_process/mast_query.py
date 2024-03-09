@@ -16,6 +16,7 @@ from astroquery.mast import Observations
 from astropy.time import Time
 from astropy.io import fits
 from io import BytesIO
+from convert import Processing
 import pandas as pd # type: ignore
 from datetime import timedelta
 import sqlite3
@@ -30,10 +31,10 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("MASTQuery")
 
 class MastQuery:
-    def __init__(self, target_name: str, instrument: str, download_dir: str="downloaded_fits"):
-        self.target_name = target_name
-        self.instrument_name = instrument
-        self.file_endings = ["_i2d.fits", "_s2d.fits", "_cal.fits", "_calints.fits"]
+    def __init__(self, download_dir: str="downloaded_fits"):
+        #self.target_name = target_name
+        #self.instrument_name = instrument
+        self.file_endings = ["_i2d.fits", "_s2d.fits", "_calints.fits"]
         self.instruments = ["NIRCam", "NIRSpec", "MIRI", "FGG"]
         self.download_dir = download_dir
         self.fits_URIs = {}
@@ -44,7 +45,6 @@ class MastQuery:
         self.row_data = {}
         self.all_observations = []
         self.sceduled_start_time = None
-
 
     def mast_auth(self, token: str) -> None:
         """
@@ -136,33 +136,24 @@ class MastQuery:
         current_week = []
         
         week_count = 1
-        max_week = 1
+        max_weeks = 52
         for index, row in full_dataframe.iterrows():
             if str(row["visit_id"]).startswith("Visit Information for OP Package"):
                 if current_week:
                     weekly_dataframes.append((week_count, pd.DataFrame(current_week)))
                     current_week = []
                     week_count += 1
+                    if week_count > max_weeks:
+                        break
                     #logger.info(f"week_count: {week_count}")
                 continue
             current_week.append(row)
         
         # save the last week
-        if current_week:
+        if current_week and week_count <= max_weeks:
             weekly_dataframes.append((week_count, pd.DataFrame(current_week)))
         #logger.info(f"---------Weekly DataFrames-------\n {weekly_dataframes}")
         return weekly_dataframes
-
-    def process_weekly_observations(self, weekly_dataframes: list) -> None:
-        """
-        Process observations segmented by week.
-
-        Parameters:
-            weekly_dataframes (list): Takes in dataframes for each week as a list.
-        """
-        for week_count, weekly_df in weekly_dataframes:
-            for index, row in weekly_df.iterrows():
-                self.process_individual_observation(row.to_dict(), week_count)
 
     def clean_instrument_name(self, full_instrument_name: str) -> str:
         """
@@ -174,7 +165,7 @@ class MastQuery:
         Returns:
             str:  The instrument name.
         """
-        known_instruments = {"NIRCam", "NIRSpec", "MIRI", "FGS", "NIRISS"}
+        known_instruments = {"NIRCam", "NIRSpec", "FGS", "NIRISS"}
 
         # check if the full name is already a known instrument
         if not full_instrument_name:
@@ -183,6 +174,7 @@ class MastQuery:
         #return full_instrument_name.split()[0]
         instrument_name = full_instrument_name.split()[0] if " " in full_instrument_name else full_instrument_name
         return instrument_name if instrument_name in known_instruments else ""
+    
 
     def process_individual_observation(self, observation_row, week_count: int) -> dict | None:
         """
@@ -195,24 +187,67 @@ class MastQuery:
         Returns:
             dict:
         """
+        # reset observation metadata for each observation
+        self.obs_metadata = {}
+
+        # aquire observation metadata 
         target_name = observation_row.get("target_name", "")
         instrument_name = self.clean_instrument_name(observation_row.get("science_instrument", ""))
+        instrument_name_type = instrument_name + "/image"
         category = observation_row.get("category", "")
         keywords = observation_row.get("keywords", "")
-        self.sceduled_start_time = observation_row.get("scheduled_start_time", "")
+        date = observation_row.get("scheduled_start_time", "")
+        self.scheduled_start_time = date.split("T")[0]
         
-        if category == "Calibration":
-            logger.warning("-------Skipping calibration")
+        # skip certain rows 
+        skip_categories = ["Calibration", "Unidentified"]
+        if category in skip_categories:
+            logger.warning("-------Skipping {category}")
             return
         if not all([target_name, instrument_name, category, keywords]):
             logger.warning("Skipping observation due to missing information")
             return
 
-        logger.info(f"Processing week {week_count}: Target={target_name}, Instrument={instrument_name}, Category: {category}, Keywords: {keywords}")
 
-        self.query_mast(target_name, instrument_name, category, keywords)
 
-    def query_mast(self, target: str, instrument: str, category: str, keywords:  str) -> None:
+        # query into MAST database to aquire FITS file and additional metadata
+        final_metadata = self.query_mast(target_name, instrument_name_type, category, keywords)
+        if final_metadata:
+            # return metadata for this observation
+            return final_metadata
+
+
+    def process_weekly_observations(self, weekly_dataframes: list) -> None:
+        """
+        Process observations segmented by week.
+
+        Parameters:
+            weekly_dataframes (list): Takes in dataframes for each week as a list.
+        """
+        target_week = 6
+        for week_count, weekly_df in weekly_dataframes:
+            if week_count == target_week:
+                logger.info(f"Processing observations for week {target_week}")
+                for index, observation in weekly_df.iterrows():
+                    observation_metadata = self.process_individual_observation(observation.to_dict(), week_count)
+                    logger.info(f"--------OBSERVATION METADATA-------- \n {observation_metadata}")
+                    if observation_metadata:
+                        # access first item in observation_metadata to get nested dict
+                        metadata = next(iter(observation_metadata.values()))
+                        if 'fits_url' in metadata:
+                            best_fits_uri = metadata['fits_url']
+                            if best_fits_uri:
+                                # construct full URL for FITS file
+                                new_url = self.combine(best_fits_uri)
+                                logger.info(f"Processing FITS URI: {new_url}")
+                                # stream and process FITS data
+                                self.stream_fits_data(new_url)
+                                # process FITS file
+                                Processing().compare_scaling_methods(new_url)
+                        else:
+                            logger.error(f"'fits_url' not found in observation metadata: {observation_metadata}")
+
+    def query_mast(self, target: str, instrument: str, category: str, keywords:  str) -> dict | None:
         """
         Performs a query into MAST database for JWST observations based on target information,
         processes the observation table, selects best fits file based on data product criteria,
@@ -230,6 +265,7 @@ class MastQuery:
         obs_table_calib_3 = Observations.query_criteria( #type: ignore
             target_name=target,
             obs_collection="JWST",
+            instrument_name=instrument,
             dataRights="PUBLIC",
             dataproduct_type="IMAGE",
             calib_level=3
@@ -243,6 +279,7 @@ class MastQuery:
             obs_table_level_2 = Observations.query_criteria( #type: ignore
                 target_name=target,
                 obs_collection="JWST",
+                instrument_name=instrument,
                 dataRights="PUBLIC",
                 dataproduct_type="IMAGE",
                 calib_level=2
@@ -262,10 +299,11 @@ class MastQuery:
             desired_calib_level = 3 if len(obs_table_calib_3) > 0 else 2
             filtered_data_products = data_products[data_products['calib_level'] == desired_calib_level]
             #logger.info(f"OBSERVATION TABLE------ \n {obs_table}")
-            #logger.info(f"FILTERED DATA PRODUCTS LIST: \n {filtered_data_products}")
+            logger.info(f"FILTERED DATA PRODUCTS LIST: \n {filtered_data_products}")
+            for uri in filtered_data_products['dataURI']:
+                print(uri)
 
             obs_df = obs_table.to_pandas()
-            #logger.info(f"OBS_df------------\n {obs_df}")
 
             filtered_fits = self.filter_files(filtered_data_products)
 
@@ -311,16 +349,20 @@ class MastQuery:
                     }
                     # unique identifier for each entry
                     self.obs_metadata[f"{target}_{best_fits_row['obs_id']}"] = metadata
-
+                    logger.info(f"SCHEDULED START TIME: {self.scheduled_start_time}")
                     # select best fits
                     # once selected, get date and filter
-                    #for key, value in self.obs_metadata.items():
-                    #    print(f"Metadata for {key}:")
-                    #    for k, v in value.items():
-                    #        print(f"    {k}: {v}")
-                    #       print()
-                    logger.info(f"METADATA FOR {target}: \n {pp.pprint(self.obs_metadata)}")
+                    for target, value in self.obs_metadata.items():
+                        print(f"Metadata for {target}:")
+                        for k, v in value.items():
+                            print(f"    {k}: {v}")
+                            print()
                     logger.info(f"Metadata extracted and stored for target {target}.")
+                    return self.obs_metadata
+
+    def get_best_fits_uri(self):
+        last_key = list(self.obs_metadata.keys())[-1]
+        return self.obs_metadata[last_key]["fits_url"]
 
     def select_best_fits(self, data_products: pd.DataFrame, max_mb_size: float=500.0) -> str | None:
         """
@@ -348,9 +390,9 @@ class MastQuery:
         # size limit filter
         filtered_size_fits = fits_filtered_products[fits_filtered_products["size"] <= max_size_bytes]
 
-        if fits_filtered_products.empty:
+        if filtered_size_fits.empty:
             logger.warning("No suitable FITS files found.")
-            return
+            return None
         
         # select the product with the largest file size
         best_fits_row = filtered_size_fits.loc[filtered_size_fits['size'].idxmax()]
@@ -423,11 +465,11 @@ class MastQuery:
                          )]
         # check if fits files are found
         if not filtered_fits:
-            logger.warning(f"No filtered FITS files were found for: {self.target_name}")
+            logger.warning(f"No filtered FITS files were found for: ")
             return
         else:
             # print out list of filtered FITs files
-            logger.info(f"Filtered FITS files for {self.target_name}")
+            logger.info(f"Filtered FITS files for ")
             #for product in filtered_fits:
             #   logger.info(product["productFilename", "parent_obsid"])
             return filtered_fits
@@ -451,7 +493,7 @@ class MastQuery:
             with fits.open(BytesIO(response.content)) as hdul:
                 logger.info(f"Successfully opened FITS data from {data_uri}")
                 image_data = hdul.info()
-                logger.info(image_data)
+                #logger.info(image_data)
                 # return hdul list
                 return hdul
         except requests.RequestException as e:
@@ -522,9 +564,12 @@ class MastQuery:
         Returns:
             str: The combined URL for fits file
         """
-        mast_url = "https://mast.stsci.edu/api/v0.1/Download/file?uri=mast:JWST/product/"
-        new = mast_url + fits_uri
-        self.fits_URIs = new
+        if fits_uri is None:
+            logger.error("FITS URI is None, cannot construct the full URi")
+            return ""
+        mast_url = "https://mast.stsci.edu/api/v0.1/Download/file?uri="
+        new_uri = mast_url + fits_uri
+        self.fits_URIs = new_uri
         logger.info(f"FITS URIs DICTIONARY: \n {self.fits_URIs}")
-        return new
+        return new_uri
 
