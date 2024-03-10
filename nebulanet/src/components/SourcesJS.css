@@ -33,11 +33,12 @@
   .wrapperSource {
     padding: 8%;
     display: flex;
-    /* color: #262323; */
     color: #d2d2d2;
+    background-color: black;
     align-items: center;
     flex-direction: column;
   }
+
   .link-cont {
     justify-content: center;
     align-items: center;
@@ -45,11 +46,12 @@
     flex-direction: column;
     padding-top: 10%;
   }
-  h3{
-    /* color: #262323; */
+
+  h3 {
     color: #d2d2d2;
     font-size: 25px;
   }
+
   .links {
     display: flex;
     align-items: center;

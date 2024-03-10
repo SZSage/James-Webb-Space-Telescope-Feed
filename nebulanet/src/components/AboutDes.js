@@ -1,6 +1,5 @@
 import React from "react";
 import './AboutDes.css';
-import Footer from "./Footer";
 
 /*
 AboutDes.js is the javascript page that is tasked with creating the "About" subpage that is on NebulaNet. It consists of information regarding
@@ -49,7 +48,6 @@ function AboutDes () {
                     wavelength coverage and greatly improved sensitivity than Hubble. Finally, Webb is operating much farther from Earth,
                     maintaining its extremely cold operating temperature, stable pointing and higher observing efficiency than the Earth-orbiting Hubble.
                 </p>
-                <div className="creator">
                     <hr classname="solid"/>
                     <p3 className="notes">This project envisions a website dedicated to provide the latest observations and discoveries captured
                     by the James Webb Space Telescope (JWST), sourced directly from the Mikulski Archive for Space Telescopes
@@ -57,7 +55,6 @@ function AboutDes () {
                     definition visuals of galaxies, stars, planets, and other celestial phenomena. Each image will be
                     accompanied by detailed information, including the scientific insights it provides, the specific JWST
                     instruments involved in its capture, and other technical data. </p3>
-                </div>
             </div>
 
         </div>

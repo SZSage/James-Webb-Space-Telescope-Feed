@@ -84,14 +84,15 @@ h4 {
 
   .about-container {
     height: auto;
+    color: black;
     width: 100%;
     margin-bottom: 10;
 
   }
   .description {
-    width: 70%;
+    width: 80%;
     margin: auto;
-    color: #d2d2d2;
+    color: black;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -114,8 +115,16 @@ h4 {
  }
 
  .diagram {
-  width: 90%;
+  width: 100%;
+  height: auto;
+ }
+ .notes {
+  font-size: 15px;
  }
 
+ .subtitle {
+  font-size: 15px;
+  width: 80%;
+}
 
  }

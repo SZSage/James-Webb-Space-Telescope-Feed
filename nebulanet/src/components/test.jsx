@@ -1,41 +1,12 @@
 import AwesomeSlider from "react-awesome-slider";
 import "react-awesome-slider/dist/styles.css";
-import slides from "./pics.json"
 import './test.css';
 
 export default function App() {
-  const data = [
-    {
-      id: "1",
-      instrument: "Infared lens",
-      title: "Carina Nebula",
-      desc:
-        "This is the Carina Nebula pciture Taken by the James Webb Telescope",
-      img:
-        "carinanebula3.jpg"
-    },
-    {
-      id: "2",
-      instrument: "asset/globe.png",
-      title: "Mobile Application",
-      desc:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-      img:
-        "test-img.png"
-    },
-    {
-      id: "3",
-      instrument: "asset/writing.png",
-      title: "Branding",
-      desc:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-      img:
-        "CWEBTILE-2-5.png"
-    }
-  ];
+  let sourceP = "./processed_png/";
+  let tag = ".png";
 
-  const dataNew =
-  {
+  const datav2 = {
     "IR08572-NW_NIRCam_2024-03-08": {
         "target_name": "IR08572-NW",
         "target_classification": "Galaxy",
@@ -308,24 +279,61 @@ export default function App() {
         "fits_url": "mast:JWST/product/jw02107-o032_t014_nircam_clear-f360m_i2d.fits",
         "size": 132186240
     }
+};
+
+
+
+ const modifiedJSON = Object.keys(datav2).reduce((acc, key) => {
+  const filePath = key;
+  acc[key] = {
+      ...datav2[key],
+      new_path: filePath
+  };
+  return acc;
+}, {});
+
+console.log(modifiedJSON);
+
+
+const arrayOfObjects = Object.values(modifiedJSON);
+
+
+const datafileName = arrayOfObjects.map((d) => {
+  const updatedFilename = sourceP + d.new_path + tag;
+  return {
+    ...d,
+    new_path: updatedFilename
   }
+ });
+
+console.log(datafileName);
 
   return (
     <>
     <div className="App">
       <AwesomeSlider>
-        {data.map((d) => (
+        {datafileName.map((d) => (
             <>
             <div className="item">
                 <div className="right">
-                    <img className="currentImage" src={d.img} alt="could not display figure"/>
+                    <img className="currentImage" src={d.new_path} alt="could not display figure"/>
                 </div>
                 <div className="left">
                     <div className="leftContainer">
-                        <h2>{d.title}</h2>
-                        <p>Description: {d.desc} </p>
-                        <p>Instrument: {d.instrument}</p>
+                        <h2>Date: {d.start_time}</h2>
+                        <p>Title: {d.obs_title} </p>
+                        <p>Target Name: {d.target_name}</p>
+                        <p>Clasification: {d.target_classification} {d.keywords}</p>
+                        <p>Instrument: {d.instrument_name}</p>
+                        <p>Filters: {d.filters} </p>
+                        <p>End Time: {d.end_time}</p>
+                        <p>Total Exposure Time: {d.exposure_time}  ( hh : mm : ss.ms )</p>
+                        <p>Calibration Level: {d.calib_level}</p>
                     </div>
+                    <p className="desc2" >Description: {d.description}</p>
+                    <p>Keywords: {d.keywords}</p>
+                    <p>FIT file: {d.file_name}</p>
+                    <p>FIT URL: {d.fits_url}</p>
                 </div>
             </div>
           </>

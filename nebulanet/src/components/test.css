@@ -38,6 +38,15 @@ img {
 
 .leftContainer {
   padding-left: 5%;
+  padding-bottom: 1%;
+}
+
+.left {
+  color: #d2d2d2;
+}
+.date {
+  font-size: 15px;
+  background-color: aqua;
 }
 
 
@@ -50,16 +59,14 @@ img {
     justify-content: center;
     align-items: center;
   }
+  .right {
+    width: fit-content;
+    height: auto;
+  }
 
   .currentImage {
     justify-content: center;
     padding-inline: 5%;
     align-items: center ;
   }
-
-  img {
-    height: 40px;
-    width: 40px;
-  }
-
 }

@@ -3,10 +3,8 @@ import "./Welcome.css";
 
 function Welcome () {
     return (
-        <>
             <div className="wrapper">
                 <h1> Wecome to NebulaNet!</h1>
-                <hr classname="solid"/>
                 <div className="welcome">
                     NebulaNet aims to be a resource displaying the daily observations
                     taken by the James Webb Telescope. Contrary to popular belief, the
@@ -16,7 +14,6 @@ function Welcome () {
                     algorithms depending on the tyoe of subject the image was focusing on.
                 </div>
             </div>
-        </>
     )
 }
 export default Welcome

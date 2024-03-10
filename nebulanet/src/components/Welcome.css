@@ -31,7 +31,8 @@
 @media screen and (max-width: 960px){
   .wrapper {
     background-color: #d2d2d2;
-    padding: 150px;
+    padding-block: 20%;
+    padding-inline: 10%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -42,6 +43,7 @@
 
   .welcome {
     font-size:20px;
+    width: 100%;
   }
 
 
