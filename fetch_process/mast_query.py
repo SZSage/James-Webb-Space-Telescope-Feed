@@ -2,7 +2,7 @@
 Filename: mast_query.py
 Author: Simon Zhao
 Date Created: 02/27/2024
-Date Last Modified: 03/09/2024
+Date Last Modified: 03/06/2024
 Description: 
     This file contains the MastQuery class which queries the MAST database for 
     observations related to specific astronomical targets. It allows for the 
@@ -97,10 +97,7 @@ class MastQuery:
         Converts mjd format to iso format
 
         Parameters:
-            mjd (Time): Takes in mjd time format.
-
-        Returns:
-            Time: ISO time format.
+            mjd (time):
         """
         t = Time(mjd, format='mjd')
         return t.iso  # or t.datetime to get a datetime object
