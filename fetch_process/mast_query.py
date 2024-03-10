@@ -17,13 +17,13 @@ from astropy.utils.data import clear_download_cache
 from astropy.time import Time
 from astropy.io import fits
 from io import BytesIO
-from convert import Processing
+from process_convert import Processing
 import pandas as pd # type: ignore
 import numpy as np
 from datetime import timedelta
 import sqlite3
 import requests
-import os
+import os.path
 import logging
 import pprint
 
@@ -33,7 +33,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("MASTQuery")
 
 class MastQuery:
-    def __init__(self, download_dir: str="downloaded_fits"):
+    def __init__(self, download_dir: str="processed_png"):
         self.target_name = None
         #self.instrument_name = instrument
         self.file_endings = ["_i2d.fits", "_s2d.fits", "_calints.fits"]
@@ -48,6 +48,7 @@ class MastQuery:
         self.all_observations = []
         self.scheduled_start_time = None
         self.instrument = None
+        self.file_names = []
 
     def mast_auth(self, token: str) -> None:
         """
@@ -63,7 +64,6 @@ class MastQuery:
             Observations.login(token=token)
         except Exception as e:
             logger.error(f"Failed to authenticate MAST API: {e}")
-
 
     def connect_sqlite3(self, db_path: str) -> bool:
         """
@@ -174,7 +174,6 @@ class MastQuery:
         if not full_instrument_name:
             return full_instrument_name
         # otherwise, split and return the first word
-        #return full_instrument_name.split()[0]
         instrument_name = full_instrument_name.split()[0] if " " in full_instrument_name else full_instrument_name
         return instrument_name if instrument_name in known_instruments else ""
     
@@ -197,32 +196,49 @@ class MastQuery:
         self.target_name = observation_row.get("target_name", "")
 
         self.instrument_name = self.clean_instrument_name(observation_row.get("science_instrument", ""))
-        logger.info(f"INSTRUMENT NAME: {self.instrument_name}")
         instrument_name_type = self.instrument_name + "/image"
         category = observation_row.get("category", "")
         keywords = observation_row.get("keywords", "")
         date = observation_row.get("scheduled_start_time", "")
-        logger.info(f"SCHEDULED START TIME BEFORE SPLIT {date}")
+        #logger.info(f"SCHEDULED START TIME BEFORE SPLIT {date}")
         self.scheduled_start_time = date.split("T")[0]
-        logger.info(f"SCHEDULED START TIME AFTER SPLIT {self.scheduled_start_time}")
+        #logger.info(f"SCHEDULED START TIME AFTER SPLIT {self.scheduled_start_time}")
         
         # skip certain rows 
-        if self.target_name == "BD+60-1753":
+        skip_obs = ["BD+60-1753", "ABELL2744"]
+        if self.target_name in skip_obs:
             return
         skip_categories = ["Calibration", "Unidentified"]
         if category in skip_categories:
-            logger.warning("-------Skipping {category}")
+            #logger.warning(f"-------Skipping {category}")
             return
         if not all([self.target_name, self.instrument_name, category, keywords]):
-            logger.warning("Skipping observation due to missing information")
+            #logger.warning("Skipping observation due to missing information")
             return
 
         logger.info(f"Performing query into MAST for Week: {week_count} Target: {self.target_name}, Instrument: {self.instrument_name}, Date: {self.scheduled_start_time}, Category: {category}, Keywords: {keywords}")
         # query into MAST database to aquire FITS file and additional metadata
         final_metadata = self.query_mast(self.target_name, instrument_name_type, category, keywords)
+        #logger.info(f"FINAL METADATA========: \n {final_metadata}")
         if final_metadata:
             # return metadata for this observation
             return final_metadata
+
+    def file_exist(self, path: str) -> bool:
+        """
+        Check if a file exists in the specified path.
+
+        Parameters:
+            path (str): File path for PNG images.
+
+        Returns:
+            bool: True if file exists, otherwise false.
+        """
+        exists = os.path.isfile(path)
+        if exists:
+            logger.info(f"File {path} already exists.")
+        return exists
+
 
     def convert_numpy(self, obj):
         """
@@ -237,44 +253,65 @@ class MastQuery:
         else:
             return obj
 
-    def process_weekly_observations(self, weekly_dataframes: list) -> None:
+    def process_weekly_observations(self, weekly_dataframes: list, start_week: int = 16) -> None:
         """
         Process observations segmented by week.
 
         Parameters:
             weekly_dataframes (list): Takes in dataframes for each week as a list.
         """
-        target_week = 9
+        #logger.info(f"Weekly_dataframes=================\n {weekly_dataframes}")
         for week_count, weekly_df in weekly_dataframes:
             #if week_count == target_week:
+            if week_count < start_week:
+                continue
+
             logger.info(f"Processing observations for week {week_count}")
             for index, observation in weekly_df.iterrows():
+                clean_instrument = self.clean_instrument_name(observation["science_instrument"])
+                strip_date = observation["scheduled_start_time"].split("T")[0]
+                output_filename = f"{observation['target_name']}_{clean_instrument}_{strip_date}.png"
+                output_path = os.path.join(self.download_dir, output_filename)
+                logger.info(f"OUTPUT FILE NAME: {output_filename}")
+            
+                # check if output file already exists
+                if self.file_exist(output_path):
+                    logger.info(f"File {output_filename} already exists. Skipping processing.")
+                    continue
                 observation_metadata = self.process_individual_observation(observation.to_dict(), week_count)
                 logger.info(f"--------OBSERVATION METADATA-------- \n {observation_metadata}")
-                if observation_metadata:
-                    # access first item in observation_metadata to get nested dict
-                    metadata = next(iter(observation_metadata.values()))
-                    if 'fits_url' in metadata:
-                        best_fits_uri = metadata['fits_url']
-                        if best_fits_uri and self.target_name:
-                            # construct full URL for FITS file
-                            new_url = self.combine(best_fits_uri)
-                            logger.info(f"Processing FITS URI: {new_url}")
-                            # stream and process FITS data
-                            hello = self.stream_fits_data(new_url)
-                            # process FITS file
-                            Processing().compare_scaling_methods(new_url, self.target_name, self.instrument_name, self.scheduled_start_time)
-                            metadata_converted = self.convert_numpy(self.obs_metadata)
-                            if not isinstance(metadata_converted, dict):
-                                logger.error("Converted metadata is not a dictionary.")
-                            else:
-                                metadata_converted = self.convert_numpy(self.obs_metadata)
-                                logger.info(f"METADATA CONVERTED-===========:\n {metadata_converted}")
-                                Processing().append_metadata_to_json(metadata_converted, "obs_metadata.json")
-                                clear_download_cache()
-                                logger.info("CLEAR DOWNLOAD CACHE")
+                
+                if not observation_metadata:
+                    logger.error("Skipping due to no observation metadata.")
+                    continue
+
+                # access first item in observation_metadata to get nested dict
+                metadata = next(iter(observation_metadata.values()))
+                logger.info(f"METADATA: \n {metadata}")
+                best_fits_uri = metadata['fits_url']
+                logger.info(f" BEST FITS URI: {best_fits_uri}")
+                if not best_fits_uri:
+                    logger.error("No fits_url found. Skipping further processing.")
+                    continue
+                try:
+                    # construct full URL for FITS file
+                    new_url = self.combine(best_fits_uri)
+                    logger.info(f"Processing FITS URI: {new_url}")
+                    # stream and process FITS data
+                    #hello = self.stream_fits_data(new_url)
+                    # process FITS file
+                    Processing().compare_scaling_methods(new_url, self.target_name, self.instrument_name, self.scheduled_start_time)
+                    metadata_converted = self.convert_numpy(self.obs_metadata)
+
+                    if isinstance(metadata_converted, dict):
+                        metadata_converted = self.convert_numpy(self.obs_metadata)
+                        Processing().append_metadata_to_json(metadata_converted, "obs_metadata.json")
+                        clear_download_cache()
+                        logger.info("CLEAR DOWNLOAD CACHE")
                     else:
-                        logger.error(f"'fits_url' not found in observation metadata: {observation_metadata}")
+                        logger.error("Converted metadata is not a dictionary.")
+                except Exception as e:
+                    logger.error(f"Error processing observation: {e}")
 
     def query_mast(self, target: str, instrument: str, category: str, keywords:  str) -> dict | None:
         """
@@ -301,7 +338,7 @@ class MastQuery:
         )
         if len(obs_table_calib_3) > 0:
             obs_tables.append(obs_table_calib_3)
-            #logger.info(f"---------Calib lv 3 found, append to obs_table------ \n {obs_tables}")
+            logger.info(f"---------Calib lv 3 found, append to obs_table------ \n {obs_tables}")
 
         # if no level 3 data, fall back to level 2
         if not obs_tables:
@@ -315,18 +352,21 @@ class MastQuery:
             )
             if len(obs_table_level_2) > 0:
                 obs_tables.append(obs_table_level_2)
-                #logger.info(f"------Calib lv 2 found, append to obs_table------ \n {obs_tables}")
+                logger.info(f"------Calib lv 2 found, append to obs_table------ \n {obs_tables}")
 
         # if any observation data was gathered
+        logger.info("Logging observation data")
         if obs_tables:
             obs_table = obs_tables[0]
             data_products = Observations.get_product_list(obs_table) #type: ignore
-            
+            logger.info(f"Data Products\n {data_products}")   
             obs_title = obs_table["obs_title"]
             # process each row in observation table to extract and store desired metadata
             # extract the desired columns from the observation table
             desired_calib_level = 3 if len(obs_table_calib_3) > 0 else 2
             filtered_data_products = data_products[data_products['calib_level'] == desired_calib_level]
+            if not filtered_data_products:
+                return None
             #logger.info(f"OBSERVATION TABLE------ \n {obs_table}")
             logger.info(f"FILTERED DATA PRODUCTS LIST: \n {filtered_data_products}")
             #for uri in filtered_data_products['dataURI']:
@@ -338,11 +378,12 @@ class MastQuery:
 
             # select best fits file 
             best_fits_uri = self.select_best_fits(filtered_data_products.to_pandas())
-            logger.info(f"-------Best Fits URI------------\n {best_fits_uri}")
+            if not best_fits_uri:
+                return None
             
             # find row that corresponds to best FITS URI
             best_fits_row = filtered_data_products[filtered_data_products["dataURI"] == best_fits_uri]
-            logger.info(f"BEST FITS ROW--------\n {best_fits_row}")
+            #logger.info(f"BEST FITS ROW--------\n {best_fits_row}")
 
             # checking if there are any matches and handle case of multiple matches
             if  len(best_fits_row) > 0:
@@ -378,10 +419,11 @@ class MastQuery:
                     }
 
                     metadata_key = f"{target}_{self.instrument_name}_{self.scheduled_start_time}"
-                    logger.info(f"METADATA KEY===================: \n {metadata_key}")
+                    #logger.info(f"METADATA KEY===================: \n {metadata_key}")
+                    
                     # unique identifier for each entry
                     self.obs_metadata[metadata_key] = metadata
-                    logger.info(f"SCHEDULED START TIME: {self.scheduled_start_time}")
+                    #logger.info(f"SCHEDULED START TIME: {self.scheduled_start_time}")
                     # select best fits
                     # once selected, get date and filter
                     for target, value in self.obs_metadata.items():
@@ -392,11 +434,8 @@ class MastQuery:
                     logger.info(f"Metadata extracted and stored for target {target}.")
                     return self.obs_metadata
 
-    def get_best_fits_uri(self):
-        last_key = list(self.obs_metadata.keys())[-1]
-        return self.obs_metadata[last_key]["fits_url"]
 
-    def select_best_fits(self, data_products: pd.DataFrame, max_mb_size: float=200.0, min_mb_size: float = 20.0) -> str | None:
+    def select_best_fits(self, data_products: pd.DataFrame, max_mb_size: float=500.0, min_mb_size: float = 15.0) -> str | None:
         """
         Selects best FITS file based on calibration level, stage 3 product types, and file size.
 
@@ -415,11 +454,22 @@ class MastQuery:
         # filter by highest calibration level
         highest_calib_level = data_products['calib_level'].max()
         calib_filtered_products = data_products[data_products['calib_level'] == highest_calib_level]
+        #logger.info(f"CALIB FILTERED PRODUCTS: \n {calib_filtered_products}")
+
+        # exit early if no products match highest calibration level
+        if calib_filtered_products.empty:
+            logger.warning("No FITS files found matching the highest calibration level.")
+            return
         
         # filter for preferred file types (e.g., '_i2d.fits', '_s2d.fits')
         fits_filtered_products = calib_filtered_products[
             calib_filtered_products['productFilename'].str.contains('|'.join(self.file_endings))
         ]
+        logger.info(f"FITS FILTERED PRODUCTS: \n {fits_filtered_products}")
+        # exit early if no products match the preferred file types
+        if fits_filtered_products.empty:
+            logger.warning("No suitable FITS files found after filtering for preferred file types.")
+            return
         
         # size limit filter
         filtered_size_fits = fits_filtered_products[
@@ -427,10 +477,9 @@ class MastQuery:
                               (fits_filtered_products["size"] >= min_size_bytes)
             ]
 
-
         if filtered_size_fits.empty:
             logger.warning("No suitable FITS files found.")
-            return None
+            return
         
         # select the product with the largest file size
         best_fits_row = filtered_size_fits.loc[filtered_size_fits['size'].idxmax()]
@@ -438,7 +487,6 @@ class MastQuery:
         best_fits_uri = best_fits_row['dataURI']
         logger.info(f"Selected best FITS file URI under {max_mb_size} MB: {best_fits_uri}")
         return best_fits_uri
-
 
     def extract_and_store_fits_metadata(self, selected_fits: dict, obs_table: list) -> None:
         """
