@@ -13,7 +13,7 @@ def main() -> None:
     start = time.time()
     # mast authorization
     mast_token = "TOKEN"
-    query = MastQuery("downloaded_fits/")
+    query = MastQuery("processed_png/")
     query.mast_auth(mast_token)
     db_path = "../WebScraping/jwstDatabaseFile.sqlite"
 
