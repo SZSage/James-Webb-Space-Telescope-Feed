@@ -4,6 +4,7 @@ import Footer from '../Footer.js';
 import '../../App.js';
 import App from "../test.jsx"
 import Welcome from "../Wecome.js";
+import ScalingInfo from "../ScalingInfo.js";
 /*
 Home.js is the main component for the About page and calls the Landing and Footer component to create the entire Home
 landing page. This approach helps the component structure of react websites and allows for easy and effiecient creationg of different
@@ -18,7 +19,7 @@ function Home () {
             <Welcome/>
             <App/>
         <div className="explain">
-            <h3>WHY IS WEBB AN INFRARED TELESCOPE?</h3>
+            <h5>WHY IS WEBB AN INFRARED TELESCOPE?</h5>
             <p className="explain-desc">
                 By viewing the universe at infrared wavelengths Webb is now showing us things never before
                 seen by any other telescope. It is only at infrared wavelengths that we can see the first stars
@@ -48,6 +49,7 @@ function Home () {
                 us to penetrate dust clouds to see the birthplaces of stars and planets.
             </p>
         </div>
+            <ScalingInfo />
             <Footer />
         </>
     )
