@@ -17,7 +17,7 @@ from astropy.utils.data import clear_download_cache
 from astropy.time import Time
 from astropy.io import fits
 from io import BytesIO
-from .convert import Processing
+from convert import Processing
 import pandas as pd # type: ignore
 import numpy as np
 from datetime import timedelta

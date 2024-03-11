@@ -4,12 +4,11 @@
 set -e
 
 # run webscraper and setup SQL database
-cd ./tests
-pytest mast_query_test.py
+python3 -m pytest ./fetch_process/mast_query_test.py
 process_id=$!
 wait $process_id
 echo "tests executed"
-cd ../WebScraping
+cd ./WebScraping
 python3 ./jwstDataFinder.py
 process_id=$!
 wait $process_id
@@ -23,7 +22,7 @@ process_id=$!
 wait $process_id
 echo "jwstDatabase.py executed"
 cd ../fetch_process
-python3 ./main.py
+python3 main.py
 process_id=$!
 wait $process_id
 echo "fetch process main.py executed"
