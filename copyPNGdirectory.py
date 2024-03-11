@@ -10,7 +10,7 @@ def copy_directory(source_dir, destination_dir):
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
-        print("Usage: python script.py <source_directory> <destination_directory>")
+        print("Usage: python3 copyPNGdirectory.py <source_directory> <destination_directory>")
         sys.exit(1)
 
     source_directory = sys.argv[1]

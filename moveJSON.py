@@ -15,7 +15,7 @@ def insert_file_at_line(original_file, insert_file, line_number):
 
 if __name__ == "__main__":
     if len(sys.argv) != 4:
-        print("Usage: python script.py <original_file> <insert_file> <line_number>")
+        print("Usage: python3 moveJSON.py <original_file> <insert_file> 1 (note: the value 1 should not be altered)")
         sys.exit(1)
 
     original_file = sys.argv[1]
