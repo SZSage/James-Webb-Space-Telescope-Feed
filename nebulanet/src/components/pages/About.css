@@ -16,3 +16,14 @@
   margin-bottom: auto;
   padding: 2%;
 }
+
+
+@media screen and (max-width: 960px){
+.about-content {
+  display: flex;
+  justify-content:center;
+  flex-direction: column;
+  background-color: #d2d2d2;
+}
+
+}

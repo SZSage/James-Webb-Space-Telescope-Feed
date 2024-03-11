@@ -41,7 +41,6 @@ function RenderView () {
     <div className='model'>
       <canvas id="myThreeJsCanvas" />
     </div>
-    <Footer/>
     </>
   );
 }

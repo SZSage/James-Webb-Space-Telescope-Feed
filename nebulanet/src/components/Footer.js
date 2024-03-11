@@ -20,6 +20,7 @@ function Footer() {
         </div>
         <div class='footer-logo'>
             <Link to='/' className="navbar-logo" >
+                NebulaNet
                     <div className="box">
                         <img src="atom-8px.png" alt="atom" />
                     </div>

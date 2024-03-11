@@ -85,6 +85,7 @@ h4 {
   .about-container {
     height: auto;
     color: black;
+    background-color: #d2d2d2;
     width: 100%;
     margin-bottom: 10;
 
@@ -104,6 +105,7 @@ h4 {
 
    h1 {
     font-size: 50px;
+
    }
 
   .para {

@@ -46,31 +46,66 @@ img {
 }
 .date {
   font-size: 15px;
-  background-color: aqua;
+  padding-bottom: 5px;
+}
+
+.title-target {
+  padding: 1%;
+  font-size: 20px;
 }
 
 
+.mobile-container {
+  display: none;
+}
+
 
 @media screen and (max-width: 960px) {
+  /* .App { */
+    /* padding: 30px; */
+    /* justify-content: center; */
+    /* display: flex; */
+    /* flex-direction: column; */
+    /* align-items: center; */
+  /* } */
+
   .App {
-    padding: 30px;
-    justify-content: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    display: none;
   }
+  .mobile-container {
+    display: flex;
+    justify-content: left;
+    flex-direction: column;
+    background-color: #262323;
+    color: #d2d2d2;
+    padding: 2%;
+
+  }
+  .title-target {
+    background-color: #333131;
+  }
+
+  .slide-description {
+    padding: 2%;
+    margin-bottom: 150px;
+  }
+
   .right {
-    width: fit-content;
-    height: auto;
+    display: none;
   }
 
   .left {
-
+    display: none;
+  }
+  .desc2 {
+    display: none;
+  }
+  .carousel .thumbs {
+    display: none;
   }
 
-  .currentImage {
-    justify-content: center;
-    padding-inline: 5%;
-    align-items: center ;
-  }
+  .carousel.carousel-slider .control-arrow{
+    display: none;
+}
+
 }
