@@ -1,0 +1,14 @@
+{
+  "files": {
+    "main.css": "/static/css/main.159a9d26.css",
+    "main.js": "/static/js/main.382316f2.js",
+    "static/media/carinanebula3.jpg": "/static/media/carinanebula3.b354bb8c61b374786705.jpg",
+    "index.html": "/index.html",
+    "main.159a9d26.css.map": "/static/css/main.159a9d26.css.map",
+    "main.382316f2.js.map": "/static/js/main.382316f2.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.159a9d26.css",
+    "static/js/main.382316f2.js"
+  ]
+}
