@@ -26,6 +26,10 @@ python3 main.py
 process_id=$!
 wait $process_id
 echo "fetch process main.py executed"
+#python3 moveJSON.py fetch_process/obs_metadata.json nebulanet/src/components/testJSON.js 1
+#process_id=$!
+#wait $process_id
+#echo "fetch process main.py executed"
 #cd ../nebulanet
 #npm install -g serve
 #serve -s build
