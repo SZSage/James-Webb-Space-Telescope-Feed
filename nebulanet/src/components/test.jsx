@@ -13,10 +13,10 @@ export default function App() {
   let tag = ".png";
 
 
- const modifiedJSON = Object.keys(datav5).reduce((acc, key) => {
+ const modifiedJSON = Object.keys(datav7).reduce((acc, key) => {
   const filePath = key;
   acc[key] = {
-      ...datav5[key],
+      ...datav7[key],
       new_path: filePath
   };
   return acc;

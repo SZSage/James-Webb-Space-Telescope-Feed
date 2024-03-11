@@ -1,10 +1,10 @@
 import sys
 import shutil
 
-def move_directory(source_dir, destination_dir):
+def copy_directory(source_dir, destination_dir):
     try:
-        shutil.move(source_dir, destination_dir)
-        print(f"Directory '{source_dir}' moved to '{destination_dir}' successfully.")
+        shutil.copytree(source_dir, destination_dir)
+        print(f"Directory '{source_dir}' copied to '{destination_dir}' successfully.")
     except Exception as e:
         print(f"An error occurred: {e}")
 
@@ -16,4 +16,5 @@ if __name__ == "__main__":
     source_directory = sys.argv[1]
     destination_directory = sys.argv[2]
 
-    move_directory(source_directory, destination_directory)
+    copy_directory(source_directory, destination_directory)
+
