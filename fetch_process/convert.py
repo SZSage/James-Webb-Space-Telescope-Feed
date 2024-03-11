@@ -1,8 +1,8 @@
 """
 Filename: convert.py
 Author: Simon Zhao
-Date Created: 01/24/2024
-Date Last Modified: 03/03/2024
+Date Created: 02/24/2024
+Date Last Modified: 03/10/2024
 Description: This script automates the processes of Flexible Image Transport System (FITS) files taken from the Mikulski Archive for Space Telescopes (MAST) database.
 
     - Reading FITS files to extract astronomical image data.
@@ -16,14 +16,16 @@ import numpy as np
 import matplotlib.pyplot as plt # type: ignore
 from astropy.visualization import make_lupton_rgb, astropy_mpl_style, LogStretch, ImageNormalize
 import os
-from setup_logger import logger
+import logging
+import json
 
-import pprint
-pp = pprint.PrettyPrinter(indent=4)
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("Processing")
 
 class Processing:
-    def __init__(self, download_dir="processed_png") -> None:
+    def __init__(self, download_dir="processed_png", json_dir="fetch_process") -> None:
         self.download_dir = download_dir
+        self.json_dir = json_dir
 
     def linear_scaling(self, data, scale_min=None, scale_max=None) -> np.ndarray:
         """
@@ -73,27 +75,37 @@ class Processing:
         scaled_data = np.log10(data_clipped - scale_min + 1) / np.log10(scale_max - scale_min + 1)
         return scaled_data
 
-
-    def sqrt_scaling(self, data: np.ndarray, scale_min=None, scale_max=None) -> np.ndarray:
+    def sqrt_scaling(self, data: np.ndarray, scale_min=None, scale_max=None, percentiles=(1, 99)) -> np.ndarray:
         """
-        Apply square root scaling to the data.
+        Apply square root scaling to the data with percentile-based dynamic range adjustment.
 
         Parameters:
             data (np.ndarray): Input data array to be scaled.
-            scale_min (float, optional): Minimum value for scaling.
-            scale_max (float, optional): Maximum value for scaling.
+            scale_min (float, optional): Minimum value for scaling. Overrides percentile if provided.
+            scale_max (float, optional): Maximum value for scaling. Overrides percentile if provided.
+            percentiles (tuple): Percentile values to compute dynamic scale_min and scale_max if not provided.
 
         Returns:
             np.ndarray: Square root scaled data.
         """
+        # handle NaN values from hdul data
         valid_data = data[np.isfinite(data)]
-        if scale_min is None:
-            scale_min = np.nanmin(valid_data)
-        if scale_max is None:
-            scale_max = np.nanmax(valid_data)
         
+        # compute percentile-based scale_min and scale_max if not provided
+        if scale_min is None or scale_max is None:
+            p_low, p_high = np.percentile(valid_data, percentiles)
+            scale_min = p_low if scale_min is None else scale_min
+            scale_max = p_high if scale_max is None else scale_max
+
+        # ensure data values fall within scale_min and scale_max range
         data_clipped = np.clip(data, scale_min, scale_max)
+
+        # apply square root scaling within the adjusted dynamic range
         scaled_data = np.sqrt(data_clipped - scale_min) / np.sqrt(scale_max - scale_min)
+
+        # ensure scaled data is within [0, 1] after scaling
+        scaled_data = np.clip(scaled_data, 0, 1)
+
         return scaled_data
 
     def hist_eq_scaling(self, data: np.ndarray) -> np.ndarray:
@@ -106,21 +118,11 @@ class Processing:
         Returns:
             np.ndarray: Data scaled using histogram equalization.
         """
-        # handling NaN values by replacing them with the minimum value
-        nan_mask = np.isnan(data)
-        data_clean = data.copy()
-        data_clean[nan_mask] = np.nanmin(data)
-        
-        # histogram equalization process
-        img_hist, bins = np.histogram(data_clean.flatten(), bins=np.linspace(np.nanmin(data), np.nanmax(data), 257))
+        img_hist, bins = np.histogram(data.flatten(), bins=np.arange(257))
         cdf = img_hist.cumsum()
-        cdf_normalized = cdf * (img_hist.max() / cdf.max())
-        scaled_data = np.interp(data_clean.flatten(), bins[:-1], cdf_normalized)
-        
-        # applying mask to revert NaN values
-        scaled_data_reshaped = scaled_data.reshape(data.shape)
-        scaled_data_reshaped[nan_mask] = np.nan
-        return scaled_data_reshaped
+        cdf_normalized = cdf * float(img_hist.max()) / cdf.max()
+        scaled_data = np.interp(data.flatten(), bins[:-1], cdf_normalized)
+        return scaled_data.reshape(data.shape)
 
 
     def asinh_scaling(self, data: np.ndarray, scale_min=None, scale_max=None, non_linear=2.0) -> np.ndarray:
@@ -150,26 +152,6 @@ class Processing:
         scaled_data = np.arcsinh((data - scale_min) / non_linear) / factor
         return scaled_data
 
-    def compare_scaling_methods(self, fits_path: str) -> None:
-        """
-        Compare different scaling methods by visualizing them in a single plot.
-        
-        Parameters:
-            fits_path (str): Path to the FITS file.
-        """
-        
-        methods = ["linear", "asinh", "sqrt", "log", "hist_eq"]
-        # initialize subplots
-        fig, axs = plt.subplots(1, len(methods), figsize=(5 * len(methods), 5))
-        
-        for ax, method in zip(axs, methods):
-            scaled_data = self.process_fits(fits_path, scaling_method=method)
-            ax.imshow(scaled_data, cmap="magma", origin="lower")
-            ax.set_title(f"{method.capitalize()} Scaling")
-            ax.axis("off")
-        
-        plt.tight_layout()
-        plt.show()
 
     def process_fits(self, fits_path: str, scaling_method: str, frame=0, **kwargs) -> np.ndarray:
         """
@@ -189,7 +171,7 @@ class Processing:
 
             if data.ndim == 3:
                 data = data[frame]
-            logger.info(f"IMAGE DATA IN FIRST EXTENSION: \n {data}")
+            #logger.info(f"IMAGE DATA IN FIRST EXTENSION: \n {data}")
 
             # scaling methods
             if scaling_method == "asinh":
@@ -228,6 +210,70 @@ class Processing:
         plt.axis("off")
         plt.show()
 
+    def compare_scaling_methods(self, fits_path: str, target_name: str, instrument: str, start_date: str) -> None:
+        """
+        Compare different scaling methods by visualizing them in a single plot.
+        
+        Parameters:
+            fits_path (str): Path to the FITS file.
+        """
+        #methods = ["linear", "asinh", "sqrt", "log", "hist_eq"]
+        methods = ["sqrt", "hist_eq"]
+        # initialize subplots
+        #fig, axs = plt.subplots(1, len(methods), figsize=(2 * len(methods), 2))
+        fig, axs = plt.subplots(1, len(methods), figsize=(10, 5))
+        plt.style.use('dark_background')
+        for ax, method in zip(axs, methods):
+            scaled_data = self.process_fits(fits_path, scaling_method=method)
+            ax.imshow(scaled_data, cmap="magma", origin="lower")
+            ax.set_title(f"{method.capitalize()} Scaling", color="white")
+            ax.axis("off")
+        
+
+        self.output_filename = f"{target_name}_{instrument}_{start_date}"
+
+        plt.tight_layout()
+        paths = os.path.join(self.download_dir, self.output_filename)
+        plt.savefig(paths + ".png", bbox_inches="tight", pad_inches=0)
+        logger.info(f"Comparison plot saved to {paths}")
+        #plt.show()
+        # close figure to free memory
+        plt.close(fig)
+
+    def append_metadata_to_json(self, metadata: dict, json_filename: str) -> None:
+        """
+        Adds observation metadata into a json file.
+
+        Parameters:
+            metadata (dict): Metadata of a particular observation in dictionary format.
+            json_filename (str): File name of json file.
+        """
+        json_file_path = os.path.join(self.json_dir, json_filename) 
+
+        try:
+            # checks if directory exists where the JSON file will be saved
+            os.makedirs(os.path.dirname(json_file_path), exist_ok=True)
+            
+            data = {}
+            # if file exists and is not empty, read existing data
+            if os.path.isfile(json_file_path) and os.path.getsize(json_file_path) > 0:
+                with open(json_file_path, 'r') as json_file:
+                    try:
+                        data = json.load(json_file)
+                    except json.JSONDecodeError:
+                        logger.error(f"Invalid JSON content in {json_file_path}. It will be overwritten.")
+            
+            # update data with new metadata
+            data.update(metadata)
+            
+            # write the updated data back to JSON file
+            with open(json_file_path, 'w') as json_file:
+                json.dump(data, json_file, indent=4)
+
+            logger.info(f"Metadata saved to {json_file_path}")
+        except Exception as e:
+            logger.error(f"Failed to save metadata to JSON: {e}")
+
     def convert_to_png(self, data: np.ndarray, output_filename: str, switch: bool) -> None:
         """
         Converts the processed FITS data to PNG and saves them to a directory.
@@ -262,23 +308,3 @@ class Processing:
         """
         pass
 
-"""
-def main():
-    #target_name = "../fit_files/jw01334-o003_t003_nircam_clear-f480m_i2d.fits"
-    #target_name = "../fit_files/jw01701-o052_t007_nircam_clear-f140m-sub640_i2d.fits"
-    #target_name = "../fit_files/jw01701-o052_t007_nircam_f150w2-f164n-sub640_i2d.fits"
-    #target_name = "../fit_files/jw01701052001_02106_00014_nrcb3_i2d.fits"
-    #target_name = "../fit_files/jw04098001001_04101_00001-seg003_nis_calints.fits"
-    #target_name = "../fit_files/jw03730008001_03101_00001-seg004_mirimage_calints.fits"
-    #target_name = "../fit_files/jw01701052001_02106_00016_nrcblong_cal.fits"
-    target_name = "downloaded_fits/jw03368-o140_t001_nircam_clear-f356w-sub160p_i2d.fits"
-    #target_name = "../fit_files/jw01701052001_02106_00016_nrcblong_i2d.fits"
-    ok = Processing()
-    ok.inspect_fits_content(target_name)
-    data = ok.process_fits(target_name, use_asinh=True)
-    ok.visualize_fits(data)
-
-if __name__ == "__main__":
-    main()
-
-"""
