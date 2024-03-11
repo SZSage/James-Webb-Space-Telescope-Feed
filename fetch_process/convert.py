@@ -1,8 +1,8 @@
 """
 Filename: convert.py
 Author: Simon Zhao
-Date Created: 01/24/2024
-Date Last Modified: 03/03/2024
+Date Created: 02/24/2024
+Date Last Modified: 03/10/2024
 Description: This script automates the processes of Flexible Image Transport System (FITS) files taken from the Mikulski Archive for Space Telescopes (MAST) database.
 
     - Reading FITS files to extract astronomical image data.

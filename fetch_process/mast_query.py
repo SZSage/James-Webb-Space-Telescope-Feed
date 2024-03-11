@@ -2,7 +2,7 @@
 Filename: mast_query.py
 Author: Simon Zhao
 Date Created: 02/27/2024
-Date Last Modified: 03/06/2024
+Date Last Modified: 03/10/2024
 Description: 
     This file contains the MastQuery class which queries the MAST database for 
     observations related to specific astronomical targets. It allows for the 
@@ -139,7 +139,7 @@ class MastQuery:
         current_week = []
         
         week_count = 1
-        max_weeks = 52
+        max_weeks = 97
         for index, row in full_dataframe.iterrows():
             if str(row["visit_id"]).startswith("Visit Information for OP Package"):
                 if current_week:
@@ -239,7 +239,6 @@ class MastQuery:
             logger.info(f"File {path} already exists.")
         return exists
 
-
     def convert_numpy(self, obj):
         """
         Recursively convert numpy data types to their native Python equivalents.
@@ -253,7 +252,7 @@ class MastQuery:
         else:
             return obj
 
-    def process_weekly_observations(self, weekly_dataframes: list, start_week: int = 16) -> None:
+    def process_weekly_observations(self, weekly_dataframes: list, start_week: int = 1) -> None:
         """
         Process observations segmented by week.
 
