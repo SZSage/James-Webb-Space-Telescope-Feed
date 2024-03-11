@@ -4,7 +4,6 @@ import "react-awesome-slider/dist/styles.css";
 import './test.css';
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
-import datav5 from './exportJSON.js';
 import datav7 from './testJSON.js';
 
 

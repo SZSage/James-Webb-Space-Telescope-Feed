@@ -84,10 +84,12 @@ img {
   .title-target {
     background-color: #333131;
   }
+  .date {
+    padding-top: 10px;
+  }
 
   .slide-description {
     padding: 2%;
-    margin-bottom: 150px;
   }
 
   .right {
@@ -101,6 +103,10 @@ img {
     display: none;
   }
   .carousel .thumbs {
+    display: none;
+  }
+
+  .carousel .control-dots {
     display: none;
   }
 
