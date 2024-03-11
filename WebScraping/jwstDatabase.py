@@ -24,6 +24,9 @@ except json.JSONDecodeError as e:
 conn = sqlite3.connect('jwstDatabaseFile.sqlite')
 cursor = conn.cursor()
 
+# Clear existing data by truncating the table (DJW)
+cursor.execute("DELETE FROM jwst_data")
+
 # create table with these heading names
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS jwst_data (
