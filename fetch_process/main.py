@@ -16,7 +16,7 @@ def main() -> None:
     with open("token.txt", "r+") as file:
         mast_token = file.readline().strip()
 
-    query = MastQuery("processed_png/")
+    query = MastQuery("../nebulanet/public/processed_png/")
     query.mast_auth(mast_token)
     db_path = "../WebScraping/jwstDatabaseFile.sqlite"
 

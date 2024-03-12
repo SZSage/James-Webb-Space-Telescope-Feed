@@ -33,7 +33,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("MASTQuery")
 
 class MastQuery:
-    def __init__(self, download_dir: str="processed_png"):
+    def __init__(self, download_dir: str):
         self.target_name = None
         #self.instrument_name = instrument
         self.file_endings = ["_i2d.fits", "_s2d.fits", "_calints.fits"]

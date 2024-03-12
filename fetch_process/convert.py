@@ -23,7 +23,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("Processing")
 
 class Processing:
-    def __init__(self, download_dir="processed_png", json_dir="fetch_process") -> None:
+    def __init__(self, download_dir="../nebulanet/public/processed_png/", json_dir="./") -> None:
         self.download_dir = download_dir
         self.json_dir = json_dir
 
