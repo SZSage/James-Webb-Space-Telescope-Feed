@@ -17,7 +17,7 @@ from astropy.utils.data import clear_download_cache
 from astropy.time import Time
 from astropy.io import fits
 from io import BytesIO
-from process_convert import Processing
+from convert import Processing
 import pandas as pd # type: ignore
 import numpy as np
 from datetime import timedelta
@@ -33,7 +33,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("MASTQuery")
 
 class MastQuery:
-    def __init__(self, download_dir: str="processed_png"):
+    def __init__(self, download_dir: str):
         self.target_name = None
         #self.instrument_name = instrument
         self.file_endings = ["_i2d.fits", "_s2d.fits", "_calints.fits"]
