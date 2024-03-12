@@ -4,7 +4,7 @@ import './Landing.css';
 function ScalingInfo () {
     return (
             <div className="info-wrapper">
-                <h3>JWST Project FITS Processing</h3>
+                <h5>JWST Project FITS Processing</h5>
                 <div className="scaling-desc">
                     <h5>Overview</h5>
                     <p className="explain-desc">Astronomical observations were taken from the Mikulski Archive for Space Telescopes (MAST) database,

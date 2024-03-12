@@ -1,5 +1,4 @@
-const datav7 =
-{
+const datav7 ={
     "IR08572-NW_NIRCam_2024-03-08": {
         "target_name": "IR08572-NW",
         "target_classification": "Galaxy",

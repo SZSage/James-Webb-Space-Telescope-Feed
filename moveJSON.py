@@ -1,26 +1,28 @@
+"""moveJSON.py copies contents from the metadata into the JS template file
+testJSON.py
+"""
+
 import sys
 
-def insert_file_at_line(original_file, insert_file, line_number):
-    with open(original_file, 'r') as original:
-        original_lines = original.readlines()
 
-    with open(insert_file, 'r') as insert:
-        insert_lines = insert.readlines()
+def write_file_from_another(file_path, content_file):
+    first_line = "const datav7 ="
+    last_line = ";\nexport default datav7"
+    with open(content_file, "r") as content:
+        content_to_write = content.read()
 
-    # Insert insert_file contents into original_file at specified line number
-    original_lines[line_number:line_number] = insert_lines
+    with open(file_path, "w") as file:
+        file.write(first_line)
+        file.write(content_to_write)
+        file.write(last_line)
 
-    with open(original_file, 'w') as output:
-        output.writelines(original_lines)
 
 if __name__ == "__main__":
-    if len(sys.argv) != 4:
-        print("Usage: python3 moveJSON.py <original_file> <insert_file> 1 (note: the value 1 should not be altered)")
+    if len(sys.argv) != 3:
+        print("Usage: python moveJSON.py <file_path> <content_file>")
         sys.exit(1)
 
-    original_file = sys.argv[1]
-    insert_file = sys.argv[2]
-    line_number = int(sys.argv[3])
+    file_path = sys.argv[1]
+    content_file = sys.argv[2]
 
-    insert_file_at_line(original_file, insert_file, line_number)
-
+    write_file_from_another(file_path, content_file)
