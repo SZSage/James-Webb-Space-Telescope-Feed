@@ -1,3 +1,10 @@
+# Filenamse: install_script_linux.py
+# Author: Jacob Burke
+# Date Created: 02/25/2024
+# Date Last Modified: 03/11/2024
+# Description: install_script_linux.py installs the required programs and python
+# libraries needed to execute and launch the nebulanet website
+
 #!/bin/bash
 
 # stop script on error

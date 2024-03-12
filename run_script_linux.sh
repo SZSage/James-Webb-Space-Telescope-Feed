@@ -1,3 +1,10 @@
+# Filenamse: run_script_linux.py
+# Author: Jacob Burke
+# Date Created: 02/25/2024
+# Date Last Modified: 03/11/2024
+# Description: run_script_linux.py executres the required programs and packages
+# to create the required files/photos for the nebulanet website
+
 #!/bin/bash
 
 # stop script on error
@@ -26,11 +33,12 @@ python3 main.py
 process_id=$!
 wait $process_id
 echo "fetch process main.py executed"
-#python3 moveJSON.py fetch_process/obs_metadata.json nebulanet/src/components/testJSON.js 1
+cd ..
+#python3 moveJSON.py nebulanet/src/components/testJSON.js fetch_process/obs_metadata.json
 #process_id=$!
 #wait $process_id
-#echo "fetch process main.py executed"
-#cd ../nebulanet
+#echo "fetch process moveJSON.py executed"
+#cd ./nebulanet
 #npm install -g serve
 #serve -s build
 #cd ..
