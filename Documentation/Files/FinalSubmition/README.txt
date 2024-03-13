@@ -27,18 +27,11 @@ It aims to provide a platform for users to access and explore JWST mission data 
 
 5. Compilation and Execution
 
-To compile the source code and run the program:
-
-    Clone the GitHub repository: https://github.com/SZSage/James-Webb-Space-Telescope-Feed/
-    Unpack the ZIP archive.
-    In a Linux terminal, navigate to the project directory.
-    Make the install script executable: chmod u+x install_script_linux.sh.
-    Run the install script: ./install_script_linux.sh.
-    If software execution is needed, run the following commands:
-        npm install -g serve
-        serve -s build
+see instatation insturctions
 
 6. Additional Setup:
+
+see instatation insturctions
 
 7. Dependencies:
 
@@ -57,7 +50,7 @@ Ensure that the following software dependencies are installed:
 	Requests 
 	Pytest
 
-7. Directory Structure:
+8. Directory Structure:
 
     Documentation/: Contains project documentation.
     WebScraping/: Contains web scraping Python scripts and SQL database.
