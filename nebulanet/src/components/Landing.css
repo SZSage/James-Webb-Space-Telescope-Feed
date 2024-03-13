@@ -1,0 +1,102 @@
+video {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  position: fixed;
+}
+
+.landing-container {
+  height: 80vh;
+  width: 100%;
+  color: #d2d2d2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  object-fit: contain;
+}
+
+.contents {
+  padding-top: 250px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  object-fit: contain;
+}
+
+h1 {
+  font-size: 150px;
+}
+.text{
+  font-size:40px;
+  padding: 15px;
+  padding-bottom: 50px;
+}
+
+.explain {
+  background-color: #d2d2d2;
+  justify-content: center;
+  align-items: center;
+  padding-block: 20px;
+  flex-direction: column;
+}
+
+h3 {
+  display: flex;
+  font-size: 40px;
+  justify-content: center;
+}
+
+.explain-desc {
+  padding-block: 30px;
+  margin-inline: 10%;
+  font-size: 20px;
+}
+
+
+@media screen and (max-width: 960px) {
+  video {
+    display: none;
+  }
+
+
+  .landing-container {
+    background-image: url("carinanebula3.jpg");
+    height: auto;
+  }
+  .mobile{
+    justify-content: center;
+    width: 100%;
+
+    display: flex;
+
+  }
+  h1 {
+    font-size: 90px;
+  }
+  h3 {
+    font-size: 30px;
+  }
+  .explain-desc {
+    font-size: 18px;
+  }
+
+  .text {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+    padding: 10px;
+    padding-bottom: 40px;
+    width: 70%;
+  }
+
+  .picCar {
+    display: none;
+  }
+
+}
+
+.landing-btn {
+  margin-bottom: 300px;
+}

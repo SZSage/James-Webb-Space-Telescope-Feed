@@ -1,0 +1,11 @@
+Model Information:
+* title:	The James Webb Space Telescope
+* source:	https://sketchfab.com/3d-models/the-james-webb-space-telescope-dcb95b3193be49e7a60192055df2315d
+* author:	Ignazio Pillitteri (https://sketchfab.com/gnaz)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "The James Webb Space Telescope" (https://sketchfab.com/3d-models/the-james-webb-space-telescope-dcb95b3193be49e7a60192055df2315d) by Ignazio Pillitteri (https://sketchfab.com/gnaz) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
