@@ -11,16 +11,20 @@
 set -e
 
 # update system package (comment out for ix-dev)
-# sudo apt-get update
+sudo apt-get update
 
 # install Python 3.11.6 and pip (comment out for ix-dev)
-# sudo apt-get install -y python3.11.6 python3-pip
+sudo apt-get install -y python3.11.6 python3-pip
 
 # verify python version
 python3 --version
 
 # install SQLite3  (comment out for ix-dev)
-# sudo apt-get install -y sqlite3
+sudo apt-get install -y sqlite3
+
+# install React  (comment out for ix-dev)
+sudo apt-get install -y nodejs
+sudo apt-get install -y npm
 
 # update pip to latest version
 python3 -m pip install --upgrade pip

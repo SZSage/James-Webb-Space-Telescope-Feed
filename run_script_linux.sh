@@ -34,12 +34,8 @@ process_id=$!
 wait $process_id
 echo "fetch process main.py executed"
 cd ..
-#python3 moveJSON.py nebulanet/src/components/testJSON.js fetch_process/obs_metadata.json
-#process_id=$!
-#wait $process_id
-#echo "fetch process moveJSON.py executed"
-#cd ./nebulanet
-#npm install -g serve
-#serve -s build
-#cd ..
-#echo "run_script execution complete!"
+python3 moveJSON.py fetch_process/obs_metadata.json nebulanet/src/components/testJSON.js 1
+process_id=$!
+wait $process_id
+echo "moveJSON.py executed"
+echo "run_script execution complete!"
