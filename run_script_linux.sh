@@ -34,7 +34,7 @@ process_id=$!
 wait $process_id
 echo "fetch process main.py executed"
 cd ..
-python3 moveJSON.py fetch_process/obs_metadata.json nebulanet/src/components/testJSON.js 1
+python3 moveJSON.py fetch_process/obs_metadata.json nebulanet/src/components/testJSON.js
 process_id=$!
 wait $process_id
 echo "moveJSON.py executed"
