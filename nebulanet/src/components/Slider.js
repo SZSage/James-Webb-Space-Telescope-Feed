@@ -2,9 +2,14 @@ import React, { useState } from "react";
 import SliderContent from "./SliderContent";
 import Arrows from "./Arrows";
 import Dots from "./Dots";
-import carousel from "./carousel";
 import "./slider.css"
 
+/*
+Slider.js is component that is called by Carousel.jsx and provides the logic for the carouselto know what photo
+is currently being displayed and also provides funcionality to the arrows that are displayed for the user to be able to control which
+photo they would like to view. the default photo that is shown upon loading Home.js is the most recent picture that the James
+Webb Telescope has taken.
+*/
 const len = carousel.length - 1;
 
 

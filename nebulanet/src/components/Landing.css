@@ -7,14 +7,13 @@ video {
 }
 
 .landing-container {
-  height: 100vh;
+  height: 80vh;
   width: 100%;
   color: #d2d2d2;
   display: flex;
   flex-direction: column;
   align-items: center;
   object-fit: contain;
-  margin-bottom: 550px;
 }
 
 .contents {
@@ -34,10 +33,52 @@ h1 {
   padding-bottom: 50px;
 }
 
+.explain {
+  background-color: #d2d2d2;
+  justify-content: center;
+  align-items: center;
+  padding-block: 20px;
+  flex-direction: column;
+}
+
+h3 {
+  display: flex;
+  font-size: 40px;
+  justify-content: center;
+}
+
+.explain-desc {
+  padding-block: 30px;
+  margin-inline: 10%;
+  font-size: 20px;
+}
+
 
 @media screen and (max-width: 960px) {
+  video {
+    display: none;
+  }
+
+
+  .landing-container {
+    background-image: url("carinanebula3.jpg");
+    height: auto;
+  }
+  .mobile{
+    justify-content: center;
+    width: 100%;
+
+    display: flex;
+
+  }
   h1 {
     font-size: 90px;
+  }
+  h3 {
+    font-size: 30px;
+  }
+  .explain-desc {
+    font-size: 18px;
   }
 
   .text {
@@ -48,6 +89,10 @@ h1 {
     padding: 10px;
     padding-bottom: 40px;
     width: 70%;
+  }
+
+  .picCar {
+    display: none;
   }
 
 }
